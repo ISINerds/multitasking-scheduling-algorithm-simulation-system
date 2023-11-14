@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "queue.h": "c"
-    }
+        "queue.h": "c",
+        "processes_generator.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }
