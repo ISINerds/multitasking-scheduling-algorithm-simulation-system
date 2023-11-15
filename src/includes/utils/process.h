@@ -1,8 +1,6 @@
-#include<stdio.h>
-
 typedef struct {
-	char name;
-	int arrivalTime;
-	int executionTime;
-	int priority;
-} process;
+	char* processName;
+    int arrivalTime;
+    int runTime;
+    int priority;
+} Process;

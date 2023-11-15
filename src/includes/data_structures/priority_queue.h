@@ -3,14 +3,12 @@
 #include<string.h>
 #include <stdbool.h>
 
-#ifndef PROCESS
-#define PROCESS
 #include "../utils/process.h"
-#endif
+
 
 // structure to represent the priority queue
 typedef struct {
-	void** data; // table of void* elements pointing to void in order to make a generic pirority_queue
+	void** data; // table of void* elements in order to make a generic pirority_queue
 	int size; // size of the priority_queue
 	int capacity; // maximum size of the priority_queue
 	int dataSize; // size of each element to be added to the priority_queue
@@ -63,12 +61,9 @@ void* pop(PriorityQueue *pq) {
         printf("Priority queue underflow\n");
 		exit(0);
     }
-    
-    void *poppedData = malloc(pq->dataSize); // allocating memory for the element to be popped
-    memcpy(poppedData, pq->data[0], pq->dataSize); // copying the data into the element to be popped
 	pq->size--; // decrementing the size of the priority_queue
     swap(&pq->data[0], &pq->data[pq->size]); // swap the root with the last element
-    free(pq->data[pq->size]); // freeing the memory of the deleted element
+    void* poppedData = pq->data[pq->size];  // store the poppedData
     // perform heapify-down to maintain the heap property
     int i = 0;
     while (1) {
@@ -111,5 +106,32 @@ int compare_int(const void *a, const void *b) {
 
 // example custom comparison function for process priority
 int compare_process_priority(const void *a, const void *b) {
-    return ((process*)a)->priority > ((process*)b)->priority;
+    return ((Process*)a)->priority > ((Process*)b)->priority;
 }
+
+
+
+
+
+//int main(void) {
+//	PriorityQueue *pq = init_priority_queue(11, sizeof(int), compare_int);
+//    PriorityQueue *pq = init_priority_queue(11, sizeof(Process), compare_process_priority);
+
+//    int values[] = {50, 19, 0, 14, 6, 3, 8, 16};
+//	Process values[] = {{"pqrs", 0, 7, 8}, {"a", 5, 4, 2}, {"b", 12, 15, 88}, {"c", 8, 14, 3}, {"d", 10, 17, 18}, {"e", 5, 4, 0}};
+    
+//    for (int i = 0; i < sizeof(values) / sizeof(values[0]); ++i) {
+//        push(pq, &values[i]); // push elements into the priority_queue
+//    }
+    
+//	while(pq->size) {
+//		void* e = pop(pq); // pop element from the priority_queue
+//    	printf("Popped: value=%s %d %d %d\n", ((Process *)e)->processName, ((Process *)e)->arrivalTime, ((Process *)e)->runTime, ((Process *)e)->priority);	
+//		printf("Popped: value=%d\n", *((int*)e));
+//    	free(e); // don't forget to free the popped element
+//	}
+	
+//    free_priority_queue(pq); // free the priority_queue
+
+//    return 0;
+//}
