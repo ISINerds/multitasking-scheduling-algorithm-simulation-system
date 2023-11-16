@@ -1,0 +1,1 @@
+for file in ./src/scheduling_algorithms/*.c; do gcc $file -o ./build/algorithms/`basename $file .c`; done
