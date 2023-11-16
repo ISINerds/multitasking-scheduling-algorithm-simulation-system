@@ -106,24 +106,24 @@ Queue* create_queue_from_array( Process* processes,int numProcesses){
 
 // An example where we define a static table of processes and then we create a queue from it. We add( enqueue)
 // another process and then we dequeue them all while reading the processes names
-int main(void){
-    Process processes[] = {
-        {"Process1", 2, 10, 1},
-        {"Process2", 5, 8, 2},
-        {"Process3", 1, 15, 3},
-        {"Process4", 10, 15, 3},
-        {"Process5", 7, 5, 13},
-        {"Process6", 5, 4, 3},
-        {"Process7", 3, 7, 2},
-        {"Process8", 9, 4, 3},
-    };
-    Queue* q = create_queue_from_array(processes,8);
-    enqueue(q,{"Process9",14, 4, 3});
-    while(!is_empty(q)){
-        Process p = dequeue(q);
-        printf("%s arrives at %d \n",p.processName , p.arrivalTime);
-    }
-    return 0;
-}
+// int main(void){
+//     Process processes[] = {
+//         {"Process1", 2, 10, 1},
+//         {"Process2", 5, 8, 2},
+//         {"Process3", 1, 15, 3},
+//         {"Process4", 10, 15, 3},
+//         {"Process5", 7, 5, 13},
+//         {"Process6", 5, 4, 3},
+//         {"Process7", 3, 7, 2},
+//         {"Process8", 9, 4, 3},
+//     };
+//     Queue* q = create_queue_from_array(processes,8);
+//     enqueue(q,{"Process9",14, 4, 3});
+//     while(!is_empty(q)){
+//         Process p = dequeue(q);
+//         printf("%s arrives at %d \n",p.processName , p.arrivalTime);
+//     }
+//     return 0;
+// }
 
 
