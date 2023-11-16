@@ -15,8 +15,8 @@ typedef struct Conf {
 
 
 int random_between(int min, int max); // Generates a random number within the given interval. Before calling this function, ensure to call srand(time(NULL)) to change the seed.
-Conf read_configuration_file(); // Reads the configuration file and returns a struct containing the configuration.
-void generate_processes_file(const char*file_name, const char seperator); // Generates the processes file.
+Conf read_configuration_file(const char* file_path); // Reads the configuration file and returns a struct containing the configuration.
+void generate_processes_file(const char* configuration_file_path,const char*file_name, const char seperator); // Generates the processes file.
 
 
 int random_between(int min, int max){
@@ -28,9 +28,9 @@ int random_between(int min, int max){
 }
 
 
-Conf read_configuration_file(){
-    const char* file_path = "../../config.conf";
-    FILE *file=fopen(file_path,"r");
+Conf read_configuration_file(const char* file_path){
+
+    FILE *file=fopen("config.conf","r");
 
     Conf configuration = {0};
 
@@ -64,16 +64,17 @@ Conf read_configuration_file(){
     return configuration;
 }
 
-void generate_processes_file(const char*file_name, const char seperator){
+void generate_processes_file(const char* configuration_file_path,const char*file_name, const char seperator){
     srand(time(NULL));
-    Conf configuration=read_configuration_file();
+    Conf configuration=read_configuration_file(configuration_file_path);
     FILE * file = fopen(file_name,"w");
+    fprintf(file,"%d\n",configuration.number_of_processes);
     for(size_t i=0;i<configuration.number_of_processes;i++){
         const int arrival_time=random_between(configuration.arrival_time_lower_bound,configuration.arrival_time_upper_bound);
         const int run_time=random_between(configuration.runtime_lower_bound,configuration.runtime_upper_bound);
         const int priority=random_between(0,configuration.priority_classes);
-        if(i<configuration.number_of_processes-1)fprintf(file,"process%ld:%d%c%d%c%d\n",i,arrival_time,seperator,run_time,seperator,priority);
-        else fprintf(file,"process%ld:%d%c%d%c%d",i,arrival_time,seperator,run_time,seperator,priority);
+        if(i<configuration.number_of_processes-1)fprintf(file,"p%ld%c%d%c%d%c%d\n",i,seperator,arrival_time,seperator,run_time,seperator,priority);
+        else fprintf(file,"p%ld%c%d%c%d%c%d",i,seperator,arrival_time,seperator,run_time,seperator,priority);
     }
     fclose(file);
 }
