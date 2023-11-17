@@ -21,8 +21,14 @@ void Round_Robin(Queue* queue,int processes_number,int quantum){
     enqueue(ready_queue,dequeue(queue));
     // We stop when there is no new process ( queue is empty) and no waiting process ( ready queue is empty)
     while(!is_empty(queue) || ! is_empty(ready_queue)){
+        Process current_process ;
+        if(!is_empty(ready_queue)){
+            current_process = dequeue(ready_queue);
+        }
+        else{
+            current_process = dequeue(queue);
+        }
 
-        Process current_process = dequeue(ready_queue);
         //  In case where there is no waiting process at that current time (t) ( process in idle state) : we increment t
         if(t<current_process.arrivalTime){
             print_seperator(t,processes_number);
@@ -63,7 +69,7 @@ void Round_Robin(Queue* queue,int processes_number,int quantum){
         // Initialize the quantum for next process
         quantum = quantum_value ;
     }
-
+        // Check
         waiting_time += (wasted_time -t) ;
         print_seperator(t,processes_number);
         printf("Average rotation time : %.2fs\n" , (float)rotation_time/processes_number);
@@ -74,13 +80,13 @@ void Round_Robin(Queue* queue,int processes_number,int quantum){
 int main(void){
 
     Process processes[] = {
-        {"Process1", 0, 5, 3},
-        {"Process2", 1, 3, 2},
-        {"Process3", 2, 1, 4},
-        {"Process4", 4, 2, 1},
+        {"Process1", 1, 7, 3},
+        {"Process2", 6, 3, 2},
+        // {"Process3", 2, 1, 4},
+        {"Process4", 8, 2, 1},
 
     };
-    int processes_number = 4;
+    int processes_number = 3;
     Queue* q = create_queue_from_array(processes,processes_number);
     int quantum = 2;
     Round_Robin(q,processes_number,quantum);
