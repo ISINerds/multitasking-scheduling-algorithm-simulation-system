@@ -2,7 +2,10 @@
     "files.associations": {
         "queue.h": "c",
         "processes_generator.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "processestable.h": "c",
+        "priority_queue.h": "c",
+        "process.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
