@@ -30,7 +30,7 @@ int random_between(int min, int max){
 
 Conf read_configuration_file(const char* file_path){
 
-    FILE *file=fopen("config.conf","r");
+    FILE *file=fopen(file_path,"r");
 
     Conf configuration = {0};
 
