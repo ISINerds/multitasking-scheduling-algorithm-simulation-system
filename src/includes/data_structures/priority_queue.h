@@ -101,7 +101,7 @@ void free_priority_queue(PriorityQueue *pq) {
 
 // example custom comparison function for integers
 int compare_int(const void *a, const void *b) {
-    return (*(int *)a - *(int *)b);
+    return (*(int *)b - *(int *)a);
 }
 
 // example custom comparison function for process priority
