@@ -6,6 +6,22 @@
 // 1- parsing the processes file
 // 2- Generate a static table of a convenient format of the Process details
 
+
+int getNbProcesses() {
+    FILE *fPointer= fopen("test.txt","r");
+    char content[255];
+
+    if (fPointer != NULL ) {
+            //Getting the number of processes
+            fgets(content,255,fPointer);
+            return atoi(content);
+    }
+    else {
+        printf("Error opening the processes file");
+        return 0;
+    }
+}
+
 struct Process {
     char name[10];
     int arrivalTime ;
