@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "../includes/data_structures/priority_queue.h"
 
+#include "../includes/utils/ProcessesTable.h"
 
 /******************************************************************
     PURPOSE: Static Priority Scheduler
@@ -15,13 +16,13 @@ void static_priority_scheduler(Process processes[], int n) {
     int currentTime = 0;
     int i = 0;
 
-    while (i < n || !is_empty(pq)) {
+    while (i < n || !is_empty_pq(pq)) {
         while (i < n && processes[i].arrivalTime <= currentTime) {
             push(pq, &processes[i]);
             i++;
         }
 
-        if (!is_empty(pq)) {
+        if (!is_empty_pq(pq)) {
             Process *currentProcess = pop(pq); //the one with highest priority to be executed
             printf("Executing Process %s at time %d ...\n", currentProcess->processName, currentTime);
             currentTime += currentProcess->runTime;
@@ -59,7 +60,7 @@ void preemptive_priority_scheduler(Process processes[], int n) {
             push(pq, currentProcess);
         } 
 
-        if (!is_empty(pq)) {
+        if (!is_empty_pq(pq)) {
             Process *highestPriorityProcess = pop(pq);
 
             if (currentProcess != NULL && highestPriorityProcess->priority > currentProcess->priority) {
@@ -104,17 +105,21 @@ void preemptive_priority_scheduler(Process processes[], int n) {
 
 // Example usage
 int main() {
-    Process processes[] = {
-        {"p1", 0, 5, 1},
-        {"p2", 2, 3, 1},
-        {"p3", 2, 2, 2},
-        {"p4", 3, 5, 3},
-        {"p5", 9, 2, 5},
-        {"p6", 10,1, 2}
-    };
-    int numProcesses = sizeof(processes) / sizeof(processes[0]);
 
-    static_priority_scheduler(processes, numProcesses);
+    int processes_number = getNbProcesses("./src/processes.txt");
+    Process* processes = getTableOfProcesses("./src/processes.txt");
+
+    // Process processes[] = {
+    //     {"p1", 0, 5, 1},
+    //     {"p2", 2, 3, 1},
+    //     {"p3", 2, 2, 2},
+    //     {"p4", 3, 5, 3},
+    //     {"p5", 9, 2, 5},
+    //     {"p6", 10,1, 2}
+    // };
+    // int processes_number = sizeof(processes) / sizeof(processes[0]);
+
+    static_priority_scheduler(processes, processes_number);
 
     return 0;
 }

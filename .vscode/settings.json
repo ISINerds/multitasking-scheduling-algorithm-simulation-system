@@ -5,7 +5,9 @@
         "stdio.h": "c",
         "processestable.h": "c",
         "priority_queue.h": "c",
-        "process.h": "c"
+        "process.h": "c",
+        "string.h": "c",
+        "stdlib.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

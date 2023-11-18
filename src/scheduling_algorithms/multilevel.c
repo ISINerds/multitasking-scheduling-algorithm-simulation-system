@@ -1,16 +1,16 @@
 #include <stdio.h>
-// #include "../includes/utils/processes_generator.h"
-// #include "../includes/utils/ProcessesTable.h"
+#include <stdlib.h>
 #include "../includes/data_structures/priority_queue.h"
 #include "../includes/data_structures/queue.h"
 
+#include "../includes/utils/ProcessesTable.h"
 
 Queue* processesQ;
 
 
-int compare_process_priority(const void *a, const void *b) {
-    return ((Process*)a)->priority > ((Process*)b)->priority;
-}
+// int compare_process_priority(const void *a, const void *b) {
+//     return ((Process*)a)->priority > ((Process*)b)->priority;
+// }
 int compare_process_priority_arrivalTime(const void *a, const void *b) {
     return ((Process*)a)->arrivalTime < ((Process*)b)->arrivalTime;
 }
@@ -83,21 +83,26 @@ void multilevel(int quantum,int size){
 int main(void){
     // generate_processes_file("../config.conf","./test.txt",';');
     // struct Process *proc = getTableOfProcesses();
-    Process processes[8] = {
-        {"P1", 0, 6, 2},
-        {"P2", 1, 4, 3},
-        {"P3", 2, 5, 3},
-        {"P4", 4, 2, 1},
-        {"P5", 5, 4, 1},
-        {"P6", 6, 5, 2},
-        {"P7", 12, 5, 4},
-        {"P8", 13, 2, 4},
-    };
 
-    processesQ = create_queue_from_array(processes,8);
+    // generate_processes_file("./src/config.conf", "./src/processes.txt", ';');
+    int processes_number = getNbProcesses("./src/processes.txt");
+    Process* processes = getTableOfProcesses("./src/processes.txt");
+
+    // Process processes[8] = {
+    //     {"P1", 0, 6, 2},
+    //     {"P2", 1, 4, 3},
+    //     {"P3", 2, 5, 3},
+    //     {"P4", 4, 2, 1},
+    //     {"P5", 5, 4, 1},
+    //     {"P6", 6, 5, 2},
+    //     {"P7", 12, 5, 4},
+    //     {"P8", 13, 2, 4},
+    // };
+
+    processesQ = create_queue_from_array(processes,processes_number);
     
 
-    multilevel(2,8);
+    multilevel(2,processes_number);
     // for(int i=0;i<8;i++){
     //     push(processesQ,&processes[i]);
     // }
