@@ -2,7 +2,6 @@
 #include<stdlib.h>
 #include<string.h>
 #include <stdbool.h>
-
 #include "../utils/process.h"
 
 
@@ -27,7 +26,7 @@ PriorityQueue *init_priority_queue(int capacity, int dataSize, int (*compare)(co
 }
 
 // function to swap two elements in the priority queue
-void swap(void **a, void **b) {
+void swapPQ(void **a, void **b) {
     void *temp = *a;
     *a = *b;
     *b = temp;
@@ -44,25 +43,25 @@ void push(PriorityQueue *pq, void *data) {
     // perform heapify-up to maintain the heap property
     int i = pq->size;
     while (i > 0 && pq->compare(pq->data[i], pq->data[(i-1) / 2]) > 0) {
-        swap(&pq->data[i], &pq->data[(i-1) / 2]);
+        swapPQ(&pq->data[i], &pq->data[(i-1) / 2]);
         i = (i-1) / 2;
     }
     pq->size++; // incrementing the size of the priority_queue
 }
 
 // function to check if the priority_queue is empty
-bool is_empty(PriorityQueue* pq) {
+bool is_emptyPQ(PriorityQueue* pq) {
 	return !pq->size;
 }
 
 // function to pop the element with the highest priority from the priority_queue
 void* pop(PriorityQueue *pq) {
-    if (is_empty(pq)) {
+    if (is_emptyPQ(pq)) {
         printf("Priority queue underflow\n");
 		exit(0);
     }
 	pq->size--; // decrementing the size of the priority_queue
-    swap(&pq->data[0], &pq->data[pq->size]); // swap the root with the last element
+    swapPQ(&pq->data[0], &pq->data[pq->size]); // swap the root with the last element
     void* poppedData = pq->data[pq->size];  // store the poppedData
     // perform heapify-down to maintain the heap property
     int i = 0;
@@ -80,7 +79,7 @@ void* pop(PriorityQueue *pq) {
         }
 
         if (maxIndex != i) {
-            swap(&pq->data[i], &pq->data[maxIndex]);
+            swapPQ(&pq->data[i], &pq->data[maxIndex]);
             i = maxIndex;
         }
 		else {

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "process.h"
 
 // This C program will be :
 // 1- parsing the processes file
@@ -22,15 +23,15 @@ int getNbProcesses() {
     }
 }
 
-struct Process {
-    char name[10];
-    int arrivalTime ;
-    int ExecTime;
-    int priority;
-};
+// struct Process {
+//     char name[10];
+//     int arrivalTime ;
+//     int ExecTime;
+//     int priority;
+// };
 
 //The function that tokenizes a string and return a Process struct.
-void tokenize (char ch[255],char del[],struct Process *P) {
+void tokenize (char ch[255],char del[], Process *P) {
     ch[strcspn(ch, "\n")] = '\0';
 
     char *token;
@@ -38,20 +39,18 @@ void tokenize (char ch[255],char del[],struct Process *P) {
     //an integer to determine which Process Attribute we are parsing;
     int nb=1;
 
-    //struct Process P;
-
     // Tokenize the string using strtok
     token = strtok(ch, del);
 
     while (token != NULL) {
         if (nb==1){
-            strcpy(P->name,token);
+            strcpy(P->processName,token);
         }
         if (nb==2){
             P->arrivalTime=atoi(token);
         }
         if (nb==3){
-            P->ExecTime=atoi(token);
+            P->runTime=atoi(token);
         }
         if (nb==4){
             P->priority=atoi(token);
@@ -64,7 +63,7 @@ void tokenize (char ch[255],char del[],struct Process *P) {
 }
 
 
-struct Process *getTableOfProcesses() {
+Process *getTableOfProcesses() {
     //Choosing the seperator character 
     char sep[] = ";";
 
@@ -80,12 +79,11 @@ struct Process *getTableOfProcesses() {
             //Getting the number of processes
             fgets(content,255,fPointer);
             sizeTable = atoi(content);
-            struct Process* processes = (struct Process*)malloc(sizeTable * sizeof(struct Process));
+            Process* processes = (Process*)malloc(sizeTable * sizeof(Process));
             //printf("Size of the table is : %d \n",sizeTable);
 
             while(!feof(fPointer) && i < sizeTable){
                 fgets(content,255,fPointer);
-                //struct Process p = tokenize(content,sep);
                 tokenize(content, sep, &processes[i]);
                 //processes[i]=p;
                 i++;
