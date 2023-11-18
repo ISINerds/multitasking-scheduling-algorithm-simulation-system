@@ -1,13 +1,9 @@
+#ifndef PROCESS
+#define PROCESS
 #include "../utils/process.h"
+#endif
 
 //------------ Define structures
-// typedef struct{
-//     const char* processName;
-//     int arrivalTime;
-//     int runTime;
-//     int priority;
-// } Process;
-
 typedef struct Node {
     Process data;
     struct Node* next;
@@ -18,8 +14,18 @@ typedef struct {
     Node* rear;
 } Queue;
 
+int is_empty_q(Queue* queue);
+Queue* create_queue();
+Node* create_node(Process process);
+void enqueue(Queue* queue, Process process);
+Process dequeue(Queue* queue);
+void swap_q( Process* a,  Process* b);
+void sort_by_arrival_time(Process* processes, int numProcesses);
+Queue* create_queue_from_array( Process* processes,int numProcesses);
+
+
 //------------ Check if the queue is empty or not
-int is_emptyQ(Queue* queue){
+int is_empty_q(Queue* queue){
     return (queue->front == NULL);
 }
 
@@ -37,7 +43,7 @@ Queue* create_queue(){
     }
 }
 //------------ Create a node for the queue
-Node* create_node( Process process){
+Node* create_node(Process process){
     Node* new_node = (Node*)malloc(sizeof(Node)); 
     if(!new_node){
         printf("[ERROR] : Memory Allocation has failed!\n");
@@ -52,7 +58,7 @@ Node* create_node( Process process){
 //------------ Add an element to the queue
 void enqueue(Queue* queue, Process process) {
     Node* new_node = create_node(process);
-    if(is_emptyQ(queue)){
+    if(is_empty_q(queue)){
         queue->front = new_node;
         queue->rear = new_node;
     }
@@ -64,7 +70,7 @@ void enqueue(Queue* queue, Process process) {
 
 //------------ Remove an element from the queue and return its data ( whish is a process)
 Process dequeue(Queue* queue) {
-    if(is_emptyQ(queue)){
+    if(is_empty_q(queue)){
         printf("[ERROR] : Queue is already empty\n");
         exit(EXIT_FAILURE);
     }
@@ -78,7 +84,7 @@ Process dequeue(Queue* queue) {
 };
 
 // Function to swap two processes
-void swapQ( Process* a,  Process* b){
+void swap_q( Process* a,  Process* b){
     Process temp = *a;
     *a = *b;
     *b = temp;
@@ -89,7 +95,7 @@ void sort_by_arrival_time(Process* processes, int numProcesses){
     for (int i = 0; i < numProcesses - 1; i++) {
         for (int j = 0; j < numProcesses - i - 1; j++){
             if (processes[j].arrivalTime > processes[j + 1].arrivalTime) {
-                swapQ(&processes[j], &processes[j + 1]);
+                swap_q(&processes[j], &processes[j + 1]);
             }
         }
     }
@@ -120,8 +126,8 @@ Queue* create_queue_from_array( Process* processes,int numProcesses){
 //         {"Process8", 9, 4, 3},
 //     };
 //     Queue* q = create_queue_from_array(processes,8);
-//     enqueue(q,{"Process9",14, 4, 3});
-//     while(!is_empty(q)){
+//     enqueue(q,(Process){"Process9",14, 4, 3});
+//     while(!is_empty_q(q)){
 //         Process p = dequeue(q);
 //         printf("%s arrives at %d \n",p.processName , p.arrivalTime);
 //     }

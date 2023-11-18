@@ -1,21 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "process.h"
+#ifndef PROCESS
+#define PROCESS
+#include "../utils/process.h"
+#endif
 
 // This C program will be :
 // 1- parsing the processes file
 // 2- Generate a static table of a convenient format of the Process details
 
+struct processesTable {
+    int processesNumber;
+    Process* processes;
+} processesTable = {-1, NULL};
 
-int getNbProcesses() {
-    FILE *fPointer= fopen("test.txt","r");
+
+int getNbProcesses(const char* file_path);
+Process tokenize (char ch[255],char del[]);
+Process* getTableOfProcesses(const char* file_path);
+void freeProcesses();
+
+int getNbProcesses(const char* file_path) {
+    // if(processesTable.processesNumber != -1) return processesTable.processesNumber;
+    FILE *fPointer= fopen(file_path,"r");
     char content[255];
 
     if (fPointer != NULL ) {
-            //Getting the number of processes
-            fgets(content,255,fPointer);
-            return atoi(content);
+        //Getting the number of processes
+        fgets(content,255,fPointer);
+        return processesTable.processesNumber = atoi(content);
     }
     else {
         printf("Error opening the processes file");
@@ -23,15 +37,10 @@ int getNbProcesses() {
     }
 }
 
-// struct Process {
-//     char name[10];
-//     int arrivalTime ;
-//     int ExecTime;
-//     int priority;
-// };
 
 //The function that tokenizes a string and return a Process struct.
-void tokenize (char ch[255],char del[], Process *P) {
+Process tokenize (char ch[255],char del[]) {
+    Process result;
     ch[strcspn(ch, "\n")] = '\0';
 
     char *token;
@@ -44,26 +53,28 @@ void tokenize (char ch[255],char del[], Process *P) {
 
     while (token != NULL) {
         if (nb==1){
-            strcpy(P->processName,token);
+            result.processName = strdup(token);
         }
         if (nb==2){
-            P->arrivalTime=atoi(token);
+            result.arrivalTime = atoi(token);
         }
         if (nb==3){
-            P->runTime=atoi(token);
+            result.runTime = atoi(token);
         }
         if (nb==4){
-            P->priority=atoi(token);
+            result.priority = atoi(token);
             break;
         }
         nb++;
         token = strtok(NULL, del);
     }
-
+    return result;
 }
 
 
-Process *getTableOfProcesses() {
+Process *getTableOfProcesses(const char* file_path) {
+    // if(processesTable.processes != NULL) return processesTable.processes;
+
     //Choosing the seperator character 
     char sep[] = ";";
 
@@ -71,11 +82,10 @@ Process *getTableOfProcesses() {
     int sizeTable;
     int i=0;
 
-    FILE *fPointer= fopen("test.txt","r");
+    FILE *fPointer= fopen(file_path,"r");
     char content[255];
 
     if (fPointer != NULL ) {
-            printf("Lecture of the processes file is successfull ! \n");
             //Getting the number of processes
             fgets(content,255,fPointer);
             sizeTable = atoi(content);
@@ -84,15 +94,12 @@ Process *getTableOfProcesses() {
 
             while(!feof(fPointer) && i < sizeTable){
                 fgets(content,255,fPointer);
-                tokenize(content, sep, &processes[i]);
-                //processes[i]=p;
+                // tokenize(content, sep, &processes[i]);
+                processes[i]=tokenize(content,sep);
                 i++;
             }
             fclose(fPointer);
-
-            //Testinng part
-            //printf("%d",processes[0].priority);
-            return processes;
+            return processesTable.processes = processes;
     }
     else {
         printf("Error opening the processes file");
@@ -100,3 +107,9 @@ Process *getTableOfProcesses() {
     }
 }
 
+void freeProcesses() {
+    for (int i = 0; i < processesTable.processesNumber; i++) {
+        free(processesTable.processes[i].processName);
+    }
+    free(processesTable.processes);
+}
