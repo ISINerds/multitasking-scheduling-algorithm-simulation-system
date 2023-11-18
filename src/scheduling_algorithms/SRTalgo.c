@@ -4,47 +4,47 @@
 #include "../includes/data_structures/priority_queue.h"
 #include "../includes/utils/ProcessesTable.h"
 
-struct Process FirstArrived(struct Process *array,int sizeOfArray,int indice,struct Process first) {
+Process FirstArrived(Process *array,int sizeOfArray,int indice,Process first) {
     if (sizeOfArray <= 0) {
         // Handle case when array is empty or invalid size
         // Here, returning a default Process struct
         printf("Error, the array is empty ! ");
-        struct Process defaultProcess;
+        Process defaultProcess;
         defaultProcess.arrivalTime = -1; // Set an invalid execution time
         return defaultProcess;
     }
-    struct Process FirstArrived = first;
+    Process FirstArrived = first;
     for (int i=indice;i<sizeOfArray;i++) {
-        if (array[i].ExecTime < FirstArrived.arrivalTime){
+        if (array[i].runTime < FirstArrived.arrivalTime){
             FirstArrived = array[i];
         }
     }
     return FirstArrived;
 }
 
-struct Process minExecTime(struct Process *array,int sizeOfArray,int indice,struct Process min) {
+Process minExecTime(Process *array,int sizeOfArray,int indice,Process min) {
     if (sizeOfArray <= 0) {
         // Handle case when array is empty or invalid size
         // Here, returning a default Process struct
         printf("Error, the array is empty ! ");
-        struct Process defaultProcess;
-        defaultProcess.ExecTime = -1; // Set an invalid execution time
+        Process defaultProcess;
+        defaultProcess.runTime = -1; // Set an invalid execution time
         return defaultProcess;
     }
-    struct Process minimalProcess = min;
+    Process minimalProcess = min;
     for (int i=indice;i<sizeOfArray;i++) {
-        if (array[i].ExecTime < minimalProcess.ExecTime){
+        if (array[i].runTime < minimalProcess.runTime){
             minimalProcess = array[i];
         }
     }
     return minimalProcess;
 }
 
-void switchProcesses(struct Process *p1, struct Process *p2) {
+void switchProcesses(Process *p1, Process *p2) {
     // printf("\n Trying to switch pointers :\n");
     //  printf("\n to be switched %s :\n",p1->name);
     //  printf("\n The minimal : %s :\n",p2->name);
-    struct Process* temp= p1;
+    Process* temp= p1;
     *p1=*p2;
     *p2=*temp;
 } 
@@ -56,25 +56,25 @@ void switchProcesses(struct Process *p1, struct Process *p2) {
 // [1,3,5,*5,*7,*7,10,10] 
 
 
-struct Process * sortArrayByExecTime(struct Process * array,int sizeOfArray) {
+Process * sortArrayByExecTime(Process * array,int sizeOfArray) {
     for (int i=0; i<sizeOfArray-1 ;i++){
-        struct Process minimalProcess= minExecTime(array,sizeOfArray,i+1,array[i]);
-        printf("\n Minimal ex time : %d \n",minimalProcess.ExecTime);
-        if (array[i].ExecTime > minimalProcess.ExecTime){
+        Process minimalProcess= minExecTime(array,sizeOfArray,i+1,array[i]);
+        printf("\n Minimal ex time : %d \n",minimalProcess.runTime);
+        if (array[i].runTime > minimalProcess.runTime){
             switchProcesses(&array[i],&minimalProcess);
-            printf("\n Ancien minimal :%s \n",minimalProcess.name);
-            printf("\n Ancien non min :%s \n",array[i].name);
+            printf("\n Ancien minimal :%s \n",minimalProcess.processName);
+            printf("\n Ancien non min :%s \n",array[i].processName);
         }
     }
     return array;
 }
 
-void SRT(struct Process* array, int sizeOfArray, PriorityQueue * PQ ) {
+void SRT(Process* array, int sizeOfArray, PriorityQueue * pq ) {
 
     int current_time = 0;
     int completed_processes = 0;
     int current_process_index ;
-    // struct Process startP= FirstArrived(array,sizeOfArray,1,array[0]);
+    // Process startP= FirstArrived(array,sizeOfArray,1,array[0]);
     // printf("*----------------*%s",startP.arrivalTime);
     while(completed_processes<sizeOfArray) {
         for (int i = 0; i < sizeOfArray; ++i) {
@@ -93,13 +93,13 @@ void SRT(struct Process* array, int sizeOfArray, PriorityQueue * PQ ) {
 }
 
 int main(void) {
-    int sizeOfArray = getNbProcesses();
-    struct Process * array1=getTableOfProcesses();
+    int sizeOfArray = getNbProcesses("./src/processes.txt");
+    Process * array1=getTableOfProcesses("./src/processes.txt");
     // if (array1==NULL) {
     //     printf("\n Error getting the array of processes ! \n");
     //     return 0;
     // }
-    // struct Process * arraySorted = sortArrayByExecTime(array1,sizeOfArray);
+    // Process * arraySorted = sortArrayByExecTime(array1,sizeOfArray);
     // for(int i=0;i<sizeOfArray;i++) {
     //     printf("\n element number : %d \n",i);
     //     printf("%d",arraySorted[i].ExecTime);

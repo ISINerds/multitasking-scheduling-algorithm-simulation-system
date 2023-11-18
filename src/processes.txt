@@ -1,0 +1,11 @@
+10
+processus0;2;5;5
+processus1;8;10;3
+processus2;8;7;2
+processus3;2;3;4
+processus4;5;6;2
+processus5;8;9;0
+processus6;2;2;3
+processus7;4;3;3
+processus8;2;9;2
+processus9;7;6;4

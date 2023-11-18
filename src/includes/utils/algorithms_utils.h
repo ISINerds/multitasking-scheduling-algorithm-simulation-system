@@ -1,3 +1,8 @@
+
+void print_seperator(int t,int processes_number);
+void print_process(Process process);
+void idle_state(int processes_number);
+
 // ------------------ Print the current time in seconds and seperate between the processes
 void print_seperator(int t,int processes_number){
     char string[10];  
