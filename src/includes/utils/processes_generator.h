@@ -72,7 +72,7 @@ void generate_processes_file(const char* configuration_file_path,const char*file
     for(size_t i=0;i<configuration.number_of_processes;i++){
         const int arrival_time=random_between(configuration.arrival_time_lower_bound,configuration.arrival_time_upper_bound);
         const int run_time=random_between(configuration.runtime_lower_bound,configuration.runtime_upper_bound);
-        const int priority=random_between(0,configuration.priority_classes);
+        const int priority=random_between(1,configuration.priority_classes);
         if(i<configuration.number_of_processes-1)fprintf(file,"processus%ld%c%d%c%d%c%d\n",i,seperator,arrival_time,seperator,run_time,seperator,priority);
         else fprintf(file,"processus%ld%c%d%c%d%c%d",i,seperator,arrival_time,seperator,run_time,seperator,priority);
     }
