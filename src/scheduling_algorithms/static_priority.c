@@ -1,112 +1,51 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../includes/data_structures/priority_queue.h"
-
+#include "../includes/data_structures/queue.h"
 #include "../includes/utils/ProcessesTable.h"
 
-/******************************************************************
-    PURPOSE: Static Priority Scheduler
-    PARAMETERS:
-    - n : number of processes to be scheduled in the system
-    - processes[] : a sorted array of the processes to be scheduled
-******************************************************************/
-void static_priority_scheduler(Process processes[], int n) {
-    PriorityQueue *pq = init_priority_queue(n, sizeof(Process), compare_process_priority);
+
+void static_priority_scheduler(Process* processes, int processNumber) {
+    Queue* processesQ = create_queue_from_array(processes, processNumber);
+    PriorityQueue *pq = init_priority_queue(processNumber, sizeof(Process), compare_process_priority);
 
     int currentTime = 0;
-    int i = 0;
+    int rotationTime = 0;
+    int waitingTime = 0;
 
-    while (i < n || !is_empty_pq(pq)) {
-        while (i < n && processes[i].arrivalTime <= currentTime) {
-            push(pq, &processes[i]);
-            i++;
+    while (!is_empty_q(processesQ) || !is_empty_pq(pq)) { 
+        if(!is_empty_q(processesQ)){  
+            while(processesQ->front != NULL && processesQ->front->data.arrivalTime<=currentTime){
+                Process process = dequeue(processesQ);
+                push(pq, &process);
+            }
         }
 
         if (!is_empty_pq(pq)) {
-            Process *currentProcess = pop(pq); //the one with highest priority to be executed
-            printf("Executing Process %s at time %d ...\n", currentProcess->processName, currentTime);
+            Process *currentProcess = (Process*) pop(pq); //the one with highest priority to be executed
+            printf("Executing %s at time %d ...\n", currentProcess->processName, currentTime);
             currentTime += currentProcess->runTime;
-            printf("Process %s has terminated his job and left the CPU at time %d\n", currentProcess->processName, currentTime);
+            printf("%s has terminated his job and left the CPU at time %d\n", currentProcess->processName, currentTime);
+            // Calculate the rotation and waiting time
+            int currentRotationTime= currentTime - currentProcess->arrivalTime;
+            rotationTime+= currentRotationTime;
+            waitingTime+=(currentRotationTime - currentProcess->runTime);
             free(currentProcess);
         } else {
             currentTime++;
+            printf("idle from time %d to %d \n", currentTime-1, currentTime);
         }
     }
+    printf("Average rotation time : %.2fs\n" , (float)rotationTime/processNumber);
+    printf("Average waiting time : %.2fs\n" , (float)waitingTime/processNumber);
 
     free_priority_queue(pq);
 }
-//TODO: calculate the metrics for static priority : average turnaround time (rotation time) // average waiting time 
-
-/******************************************************************
-    PURPOSE: Preemptive Priority Scheduler
-    PARAMETERS:
-    - n : number of processes to be scheduled in the system
-    - processes[] : a sorted array of the processes to be scheduled
-******************************************************************/
-void preemptive_priority_scheduler(Process processes[], int n) {
-    PriorityQueue *pq = init_priority_queue(n, sizeof(Process), compare_process_priority);
-
-    int currentTime = 0;
-    int i = 0;
-    Process* currentProcess = NULL;
-
-    while (i < n) {
-        while (i < n && processes[i].arrivalTime <= currentTime) {
-            push(pq, &processes[i]);
-            i++;
-        }
-
-        if (currentProcess != NULL) {
-            push(pq, currentProcess);
-        } 
-
-        if (!is_empty_pq(pq)) {
-            Process *highestPriorityProcess = pop(pq);
-
-            if (currentProcess != NULL && highestPriorityProcess->priority > currentProcess->priority) {
-                printf("Preempting Process %s at time %d\n", currentProcess->processName, currentTime);
-                // Re-insert current process into the pq 
-                //currentProcess->runTime --;
-                //push(pq, currentProcess); 
-                // clear current process to empty the CPU
-                //free(currentProcess);
-                currentProcess = NULL; 
-            }
-
-            if (currentProcess == NULL) {
-                currentProcess = (Process*)malloc(sizeof(Process));
-                //currentProcess = highestPriorityProcess;
-                memcpy(currentProcess, highestPriorityProcess, sizeof(Process));
-                printf("Executing Process %s at time %d\n", currentProcess->processName, currentTime);
-            }
-
-            currentProcess->runTime--;
-            currentTime++;
-
-            if (currentProcess->runTime == 0) {
-                printf("Process %s has terminated his job and left the CPU at time %d\n", currentProcess->processName, currentTime);
-                //i++;
-                // clear current process to empty the CPU
-                free(currentProcess);
-                currentProcess = NULL;
-            }
-        } else {
-            currentTime++;
-        }
-    } 
-
-}
-
-//TODO: fix the preemptive algorithm problem
-//TODO: calculate the metrics for pre-emptive priority : average turnaround time (rotation time) // average waiting time 
 
 
-
-
-// Example usage
 int main() {
 
-    int processes_number = getNbProcesses("./src/processes.txt");
+    int processes_number = getNbProcesses("./src/processes.txt");  
     Process* processes = getTableOfProcesses("./src/processes.txt");
 
     // Process processes[] = {
