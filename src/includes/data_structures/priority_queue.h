@@ -4,7 +4,10 @@
 #define PROCESS
 #include "../utils/process.h"
 #endif
-
+#ifndef QUEUE
+#define QUEUE
+#include "./queue.h"
+#endif
 // structure to represent the priority queue
 typedef struct {
 	void** data; // table of void* elements in order to make a generic pirority_queue
@@ -23,6 +26,7 @@ void* top(PriorityQueue* pq);
 void free_priority_queue(PriorityQueue *pq);
 int compare_int(const void *a, const void *b);
 int compare_process_priority(const void *a, const void *b);
+PriorityQueue* create_copy_from_pq(PriorityQueue* pq);
 
 // function to initialize an empty priority queue
 PriorityQueue *init_priority_queue(int capacity, int dataSize, int (*compare)(const void *, const void *)) {
@@ -64,6 +68,19 @@ bool is_empty_pq(PriorityQueue* pq) {
 	return !pq->size;
 }
 
+PriorityQueue* create_copy_from_pq(PriorityQueue* pq) {
+    PriorityQueue* copy_pq = (PriorityQueue*)malloc(sizeof(PriorityQueue));
+    copy_pq->data = (void**) malloc(pq->size * sizeof(void*));
+    copy_pq->size = pq->size;
+    copy_pq->capacity = copy_pq->size;
+    copy_pq->compare = pq->compare;
+    copy_pq->dataSize = pq->dataSize;
+    for(int i=0;i<pq->size;i++) {
+        copy_pq->data[i] = malloc(pq->dataSize);
+        memcpy(copy_pq->data[i], pq->data[i], pq->dataSize);
+    }
+    return copy_pq;
+}
 // function to pop the element with the highest priority from the priority_queue
 void* pop(PriorityQueue *pq) {
     if (is_empty_pq(pq)) {
