@@ -35,9 +35,14 @@ int compare_process_priority_multilevel(const void *a, const void *b) {
     }
 }
 
-void multilevel(int quantum,int size){
+void multilevel(int quantum,int size,Process* processes){
     int t=0;
     PriorityQueue* pq = init_priority_queue(size,sizeof(MultitaskProcess),compare_process_priority_multilevel);
+    
+    int *rotationTime = (int*)malloc(size*sizeof(int));
+    for(int i=0;i<size;i++){
+        rotationTime[i]=-processes[i].arrivalTime;
+    }
     while(processesQ->front != NULL || pq->size!=0){
         if(processesQ->front != NULL){
             while(processesQ->front != NULL && processesQ->front->data.arrivalTime==t){
@@ -79,6 +84,12 @@ void multilevel(int quantum,int size){
                     break;
                 }else{
                     if((p->process).runTime==0){
+                        for(int i=0;i<size;i++){
+                            if((p->process).processName==processes[i].processName){
+                                rotationTime[i]+=t;
+                                break;
+                            }
+                        }
                         break;
                     }else if(i==quantum-1){
                         p->readyFrom=t;
@@ -91,9 +102,18 @@ void multilevel(int quantum,int size){
             t++;
             printf("idle from t=%d to t=%d\n",t-1,t);
         }
-        
     }
-    
+    int *waitingTime=(int*)malloc(size*sizeof(int));
+    float averageRotationTime=0.0,averageWaitingTime=0.0;
+    for(int i=0;i<size;i++){
+        waitingTime[i]=rotationTime[i]-processes[i].runTime;
+        averageWaitingTime+=waitingTime[i];
+        averageRotationTime+=rotationTime[i];
+    }
+    averageWaitingTime/=(float)size;
+    averageRotationTime/=(float)size;
+    printf("Average rotation time : %.2fs\n",averageRotationTime);
+    printf("Average waiting time : %.2fs\n" , averageWaitingTime);
 }
 
 int main(void){
@@ -116,15 +136,8 @@ int main(void){
     };
 
     processesQ = create_queue_from_array(processes,8);
-    clock_t start,end;
-    double cpu_time_used;
 
-    start=clock();
-    multilevel(2,8);
-    end=clock();
-    cpu_time_used=((double)(end-start))/CLOCKS_PER_SEC;
-
-    printf("time = %f ",cpu_time_used);
+    multilevel(2,8,processes);
 
     // for(int i=0;i<8;i++){
     //     push(processesQ,&processes[i]);
