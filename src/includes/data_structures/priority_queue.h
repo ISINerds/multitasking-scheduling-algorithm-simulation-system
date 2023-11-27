@@ -14,6 +14,10 @@ typedef struct {
 	int (*compare)(const void *, const void *); // function pointer for custom comparison function
 } PriorityQueue;
 
+int compare_process_runTime(const void *a, const void *b) {
+    return ((Process*)a)->runTime < ((Process*)b)->runTime;
+}
+
 PriorityQueue *init_priority_queue(int capacity, int dataSize, int (*compare)(const void *, const void *));
 void swap_pq(void **a, void **b);
 void push(PriorityQueue *pq, void *data);
@@ -117,7 +121,7 @@ void free_priority_queue(PriorityQueue *pq) {
 
 // example custom comparison function for integers
 int compare_int(const void *a, const void *b) {
-    return (*(int *)b - *(int *)a);
+    return (*(int *)a - *(int *)b);
 }
 
 // example custom comparison function for process priority
