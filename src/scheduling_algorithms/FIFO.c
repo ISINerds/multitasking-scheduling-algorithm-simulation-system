@@ -8,6 +8,7 @@
 
 // ------------------ Fist In First Out Algorithm
 void FIFO(Queue* queue,int processes_number){
+    
     int t=0;
     int rotation_time=0;
     int waiting_time=0;
