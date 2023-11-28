@@ -30,7 +30,7 @@ void* top(PriorityQueue* pq);
 void free_priority_queue(PriorityQueue *pq);
 int compare_int(const void *a, const void *b);
 int compare_process_priority(const void *a, const void *b);
-ReadyQueueElements create_array_from_pq(PriorityQueue* pq);
+ReadyQueueElements getPriorityQueueElements(PriorityQueue* pq);
 void free_created_array_from_pq(ReadyQueueElements readyqueue);
 
 // function to initialize an empty priority queue
@@ -73,7 +73,7 @@ bool is_empty_pq(PriorityQueue* pq) {
 	return !pq->size;
 }
 
-ReadyQueueElements create_array_from_pq(PriorityQueue* pq) {
+ReadyQueueElements getPriorityQueueElements(PriorityQueue* pq) {
     void** array = (void**) malloc(pq->size * sizeof(void*));
     int idx = 0;
     while(pq->size) {
@@ -168,7 +168,7 @@ int compare_process_priority(const void *a, const void *b) {
 //    for (int i = 0; i < sizeof(values) / sizeof(values[0]); ++i) {
 //        push(pq, &values[i]); // push elements into the priority_queue
 //    }
-//    ReadyQueueElements readyqueue = create_array_from_pq(pq);
+//    ReadyQueueElements readyqueue = getPriorityQueueElements(pq);
 //    for(int i=0;i<readyqueue.readyQueueSize;i++) {
 //       void* e = readyqueue.readyQueue[i];
 //       printf("Popped: value=%s %d %d %d\n", ((Process *)e)->processName, ((Process *)e)->arrivalTime, ((Process *)e)->runTime, ((Process *)e)->priority);	
