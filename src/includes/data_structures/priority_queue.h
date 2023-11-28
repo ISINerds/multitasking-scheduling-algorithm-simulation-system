@@ -4,7 +4,14 @@
 #define PROCESS
 #include "../utils/process.h"
 #endif
-
+#ifndef QUEUE
+#define QUEUE
+#include "./queue.h"
+#endif
+#ifndef READYQUEUEELEMENTS
+#define READYQUEUEELEMENTS
+#include "../utils/ReadyQueueElements.h"
+#endif
 // structure to represent the priority queue
 typedef struct {
 	void** data; // table of void* elements in order to make a generic pirority_queue
@@ -27,6 +34,8 @@ void* top(PriorityQueue* pq);
 void free_priority_queue(PriorityQueue *pq);
 int compare_int(const void *a, const void *b);
 int compare_process_priority(const void *a, const void *b);
+ReadyQueueElements getPriorityQueueElements(PriorityQueue* pq);
+void free_created_array_from_pq(ReadyQueueElements readyqueue);
 
 // function to initialize an empty priority queue
 PriorityQueue *init_priority_queue(int capacity, int dataSize, int (*compare)(const void *, const void *)) {
@@ -68,6 +77,26 @@ bool is_empty_pq(PriorityQueue* pq) {
 	return !pq->size;
 }
 
+ReadyQueueElements getPriorityQueueElements(PriorityQueue* pq) {
+    void** array = (void**) malloc(pq->size * sizeof(void*));
+    int idx = 0;
+    while(pq->size) {
+        array[idx] = malloc(pq->dataSize);
+        memcpy(array[idx++], top(pq), pq->dataSize);
+        free(pop(pq));
+    }
+    for(int i=0;i<idx;i++) {
+        push(pq, i[array]);
+        // push(pq, array[i]);
+    }
+    return (ReadyQueueElements){array, pq->size};
+}
+void free_created_array_from_pq(ReadyQueueElements readyqueue) {
+    for(int i=0;i<readyqueue.readyQueueSize;i++) {
+        free(readyqueue.readyQueue[i]);
+    }
+    free(readyqueue.readyQueue);
+}
 // function to pop the element with the highest priority from the priority_queue
 void* pop(PriorityQueue *pq) {
     if (is_empty_pq(pq)) {
@@ -133,25 +162,31 @@ int compare_process_priority(const void *a, const void *b) {
 
 
 
-//int main(void) {
-//	PriorityQueue *pq = init_priority_queue(11, sizeof(int), compare_int);
+// int main(void) {
+// 	// PriorityQueue *pq = init_priority_queue(11, sizeof(int), compare_int);
 //    PriorityQueue *pq = init_priority_queue(11, sizeof(Process), compare_process_priority);
 
-//    int values[] = {50, 19, 0, 14, 6, 3, 8, 16};
-//	Process values[] = {{"pqrs", 0, 7, 8}, {"a", 5, 4, 2}, {"b", 12, 15, 88}, {"c", 8, 14, 3}, {"d", 10, 17, 18}, {"e", 5, 4, 0}};
+//    // int values[] = {50, 19, 0, 14, 6, 3, 8, 16};
+// 	Process values[] = {{"pqrs", 0, 7, 8}, {"a", 5, 4, 2}, {"b", 12, 15, 88}, {"c", 8, 14, 3}, {"d", 10, 17, 18}, {"e", 5, 4, 0}};
     
 //    for (int i = 0; i < sizeof(values) / sizeof(values[0]); ++i) {
 //        push(pq, &values[i]); // push elements into the priority_queue
 //    }
-    
-//	while(pq->size) {
-//		void* e = pop(pq); // pop element from the priority_queue
+//    ReadyQueueElements readyqueue = getPriorityQueueElements(pq);
+//    for(int i=0;i<readyqueue.readyQueueSize;i++) {
+//       void* e = readyqueue.readyQueue[i];
+//       printf("Popped: value=%s %d %d %d\n", ((Process *)e)->processName, ((Process *)e)->arrivalTime, ((Process *)e)->runTime, ((Process *)e)->priority);	
+//       // printf("Popped: value=%d\n", *((int*)e));
+//    }
+//    printf("\n");
+// 	while(pq->size) {
+// 		void* e = pop(pq); // pop element from the priority_queue
 //    	printf("Popped: value=%s %d %d %d\n", ((Process *)e)->processName, ((Process *)e)->arrivalTime, ((Process *)e)->runTime, ((Process *)e)->priority);	
-//		printf("Popped: value=%d\n", *((int*)e));
+// 		// printf("Popped: value=%d\n", *((int*)e));
 //    	free(e); // don't forget to free the popped element
-//	}
+// 	}
 	
 //    free_priority_queue(pq); // free the priority_queue
-
+//    free_created_array_from_pq(readyqueue); // free the created array from pq
 //    return 0;
-//}
+// }
