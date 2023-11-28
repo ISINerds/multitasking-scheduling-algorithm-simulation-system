@@ -22,6 +22,7 @@ Process dequeue(Queue* queue);
 void swap_q( Process* a,  Process* b);
 void sort_by_arrival_time(Process* processes, int numProcesses);
 Queue* create_queue_from_array( Process* processes,int numProcesses);
+int size_q(Queue queue);
 
 
 //------------ Check if the queue is empty or not
@@ -111,7 +112,15 @@ Queue* create_queue_from_array( Process* processes,int numProcesses){
     return queue;
 }
 
-
+int size_q(Queue* queue){
+    Node* current_node = queue->front;
+    int size=0;
+    while(current_node != NULL){
+        size++;
+        current_node = current_node->next;
+    }
+    return size;
+} 
 // An example where we define a static table of processes and then we create a queue from it. We add( enqueue)
 // another process and then we dequeue them all while reading the processes names
 // int main(void){
