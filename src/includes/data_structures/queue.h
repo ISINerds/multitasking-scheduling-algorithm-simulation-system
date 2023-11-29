@@ -122,8 +122,7 @@ int size_q(Queue* queue){
     }
     return size;
 } 
-char** create_array_from_queue(Queue* queue){
-    int size = size_q(queue);
+char** create_array_from_queue(Queue* queue,int size){
     char** array_of_processes = (char**)malloc(size*sizeof(char*));
     int i=0;
     Node* current_node = queue->front;
@@ -152,7 +151,7 @@ char** create_array_from_queue(Queue* queue){
 //     };
 //     Queue* q = create_queue_from_array(processes,8);
 //     enqueue(q,(Process){"Process9",14, 4, 3});
-//     char**t = create_array_from_queue(q);
+//     char**t = create_array_from_queue(q,size_q(q));
 //     for(int i=0;i<size_q(q);i++){
 //         printf(t[i]);
 //     }
