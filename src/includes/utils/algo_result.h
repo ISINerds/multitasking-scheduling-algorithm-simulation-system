@@ -23,9 +23,9 @@ typedef struct AlgoResult{
 // Methods
 Gantt* create_gantt();
 int is_empty_gantt(Gantt* ganttQueue);
-void enqueue_gantt(Gantt* ganttQueue, InstantResultNode instantResultNode);
+void enqueue_gantt(Gantt* ganttQueue,int t,char* processName,int quit,char** readyQueue,int readyQueueSize);
 InstantResultNode dequeue_gantt(Gantt* ganttQueue);
-InstantResultNode* create_instant_result_node(InstantResultNode instantResultNode);
+InstantResultNode* create_instant_result_node(int t,char* processName,int quit,char** readyQueue,int readyQueueSize);
 void add_metrics(AlgoResult* algoResult,float averageRotation,float averageWaiting);
 
 
@@ -37,31 +37,32 @@ Gantt* create_gantt(){
     }
     gantt->front = NULL;
     gantt->rear  = NULL;
+    return gantt;
 }
 
 int is_empty_gantt(Gantt* ganttQueue){
     return (ganttQueue->front==NULL);
 }
 
-InstantResultNode* create_instant_result_node(InstantResultNode instantResultNode){
+InstantResultNode* create_instant_result_node(int t,char* processName,int quit,char** readyQueue,int readyQueueSize){
     InstantResultNode* newInstantResultNode = (InstantResultNode*)malloc(sizeof(InstantResultNode));
     if(!newInstantResultNode){
         printf("[ERROR] : Memory Allocation has failed!\n");
         exit(EXIT_FAILURE);
     }
-    newInstantResultNode->t              = instantResultNode.t;
-    newInstantResultNode->processName    = instantResultNode.processName;
-    newInstantResultNode->quit           = instantResultNode.quit;
-    newInstantResultNode->readyQueue     = instantResultNode.readyQueue;
-    newInstantResultNode->readyQueueSize = instantResultNode.readyQueueSize;
+    newInstantResultNode->t              = t;
+    newInstantResultNode->processName    = processName;
+    newInstantResultNode->quit           = quit;
+    newInstantResultNode->readyQueue     = readyQueue;
+    newInstantResultNode->readyQueueSize = readyQueueSize;
     newInstantResultNode->next           = NULL;
     return newInstantResultNode;
 
 }
 
 
-void enqueue_gantt(Gantt* ganttQueue, InstantResultNode instantResultNode){
-    InstantResultNode* newInstantResultNode = create_instant_result_node(instantResultNode);
+void enqueue_gantt(Gantt* ganttQueue, int t,char* processName,int quit,char** readyQueue,int readyQueueSize){
+    InstantResultNode* newInstantResultNode = create_instant_result_node(t,processName,quit,readyQueue,readyQueueSize);
     
     if(is_empty_gantt(ganttQueue)){
         ganttQueue->front = newInstantResultNode;
@@ -104,15 +105,7 @@ void add_metrics(AlgoResult* algoResult,float averageRotation,float averageWaiti
 //     list[1]="hello";
 //     list[2]="by";
 //     for(int i=0;i<10;i++){
-//         InstantResultNode node={
-//             i,
-//             "hello",
-//             list,
-//             3,
-//             0,
-//             NULL
-//         };
-//         enqueue_gantt(result.gantt,node);
+//         enqueue_gantt(result.gantt,i,"hello",0,list,3);
 //     }
 //     while(!is_empty_gantt(result.gantt)){
 //         InstantResultNode node = dequeue_gantt(result.gantt);
