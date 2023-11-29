@@ -136,7 +136,7 @@ char** create_array_from_queue(Queue* queue){
 }
 // An example where we define a static table of processes and then we create a queue from it. We add( enqueue)
 // another process and then we dequeue them all while reading the processes names
-#include<stdio.h>
+// #include<stdio.h>
 // #include<stdlib.h>
 // #include "./queue.h"
 // int main(void){
