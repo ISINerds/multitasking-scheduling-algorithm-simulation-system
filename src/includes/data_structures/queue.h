@@ -23,7 +23,7 @@ void swap_q( Process* a,  Process* b);
 void sort_by_arrival_time(Process* processes, int numProcesses);
 Queue* create_queue_from_array( Process* processes,int numProcesses);
 int size_q(Queue* queue);
-char** create_array_from_queue(Queue* queue);
+char** create_array_from_queue(Queue* queue, int size);
 
 
 //------------ Check if the queue is empty or not
