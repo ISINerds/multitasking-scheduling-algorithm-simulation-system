@@ -24,9 +24,9 @@ AlgoResult Round_Robin(Queue* queue,int processes_number,int quantum){
     while(!is_empty_q(queue) || !is_empty_q(ready_queue)){
 
         // IDLE STATE
-        while(!is_empty_q(queue) && t <queue->front->data.arrivalTime && is_empty_q(ready_queue)){
+        while(is_empty_q(ready_queue) && t <queue->front->data.arrivalTime ){
             wasted_time++;
-            enqueue_gantt(algoResult.gantt,t,"",0,NULL,NULL);
+            enqueue_gantt(algoResult.gantt,t,NULL,0,NULL,0);
             t++;
         }
 
