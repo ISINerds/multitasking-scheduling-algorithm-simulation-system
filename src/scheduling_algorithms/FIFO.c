@@ -4,8 +4,7 @@
 #include "../includes/utils/ProcessesTable.h"
 #include "../includes/utils/algo_result.h"
 
-// ------------------ Fist In First Out Algorithm
-AlgoResult FIFO(Queue* queue,int processes_number){
+AlgoResult fifo(Queue* queue,int processes_number,int quantum){
 
     if(is_empty_q(queue)){
         exit(EXIT_FAILURE);
@@ -63,34 +62,34 @@ AlgoResult FIFO(Queue* queue,int processes_number){
         return algoResult;
 
 }
-// Example of FIFO
-int main(void){
 
-    Process processes[] = {
-        {"Process1", 1, 5, 3},
-        {"Process2", 1, 3, 2},
-        {"Process3", 2, 1, 4},
-        {"Process4", 4, 2, 1},
+// int main(void){
+
+//     Process processes[] = {
+//         {"Process1", 1, 5, 3},
+//         {"Process2", 1, 3, 2},
+//         {"Process3", 2, 1, 4},
+//         {"Process4", 4, 2, 1},
         
-    };
-    int processes_number = 4;
-    Queue* q = create_queue_from_array(processes,processes_number);
-    AlgoResult result =  FIFO(q,processes_number);
-    while (!is_empty_gantt(result.gantt)){
-        InstantResultNode ins =  dequeue_gantt(result.gantt);
-        printf("t = %d \n",ins.t);
-        printf("process name = %s \n",ins.processName);
-        printf("finished = %d \n",ins.quit);
-        printf("ready queue size = %d \n",ins.readyQueueSize);
-        for(int i=0;i<ins.readyQueueSize;i++){
-            printf(ins.readyQueue[i]);
-            printf("|");
-        }
-        printf("\n");
-        printf("--------------------\n");
-    }
-    printf(" Average Waiting Time %.2f\n",result.metrics.averageWaiting);
-    printf(" Average Rotaion Time %.2f\n",result.metrics.averageRotation);
-    return 0;
-}
+//     };
+//     int processes_number = 4;
+//     Queue* q = create_queue_from_array(processes,processes_number);
+//     AlgoResult result =  fifo(q,processes_number,0);
+//     while (!is_empty_gantt(result.gantt)){
+//         InstantResultNode ins =  dequeue_gantt(result.gantt);
+//         printf("t = %d \n",ins.t);
+//         printf("process name = %s \n",ins.processName);
+//         printf("finished = %d \n",ins.quit);
+//         printf("ready queue size = %d \n",ins.readyQueueSize);
+//         for(int i=0;i<ins.readyQueueSize;i++){
+//             printf(ins.readyQueue[i]);
+//             printf("|");
+//         }
+//         printf("\n");
+//         printf("--------------------\n");
+//     }
+//     printf(" Average Waiting Time %.2f\n",result.metrics.averageWaiting);
+//     printf(" Average Rotaion Time %.2f\n",result.metrics.averageRotation);
+//     return 0;
+// }
 
