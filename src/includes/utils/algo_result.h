@@ -1,14 +1,8 @@
 #pragma once
 #include <stdlib.h>
 #include <stdio.h>
-typedef struct InstantResultNode{
-    int t;
-    char* processName; // null <=> idle state
-    char** readyQueue;
-    int readyQueueSize;
-    int quit; // 1 = finished
-    struct InstantResultNode* next;
-}InstantResultNode;
+#include "./logs.h"
+#include "./instant_result_node.h"
 typedef struct Metrics{
     float averageRotation;
     float averageWaiting;
@@ -64,7 +58,7 @@ InstantResultNode* create_instant_result_node(int t,char* processName,int quit,c
 
 void enqueue_gantt(Gantt* ganttQueue, int t,char* processName,int quit,char** readyQueue,int readyQueueSize){
     InstantResultNode* newInstantResultNode = create_instant_result_node(t,processName,quit,readyQueue,readyQueueSize);
-    
+    execution_log(*newInstantResultNode);
     if(is_empty_gantt(ganttQueue)){
         ganttQueue->front = newInstantResultNode;
         ganttQueue->rear  = newInstantResultNode;

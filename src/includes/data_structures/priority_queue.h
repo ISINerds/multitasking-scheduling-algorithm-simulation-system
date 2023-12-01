@@ -2,7 +2,6 @@
 #include<string.h>
 #include <stdbool.h>
 #include "../utils/process.h"
-#include "./queue.h"
 #include "../utils/ReadyQueueElements.h"
 // structure to represent the priority queue
 typedef struct {
