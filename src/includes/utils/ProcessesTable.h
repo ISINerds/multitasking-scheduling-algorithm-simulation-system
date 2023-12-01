@@ -1,10 +1,8 @@
+#pragma once
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef PROCESS
-#define PROCESS
 #include "../utils/process.h"
-#endif
 
 // This C program will be :
 // 1- parsing the processes file

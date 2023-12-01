@@ -1,17 +1,9 @@
+#pragma once
 #include<string.h>
 #include <stdbool.h>
-#ifndef PROCESS
-#define PROCESS
 #include "../utils/process.h"
-#endif
-#ifndef QUEUE
-#define QUEUE
 #include "./queue.h"
-#endif
-#ifndef READYQUEUEELEMENTS
-#define READYQUEUEELEMENTS
 #include "../utils/ReadyQueueElements.h"
-#endif
 // structure to represent the priority queue
 typedef struct {
 	void** data; // table of void* elements in order to make a generic pirority_queue

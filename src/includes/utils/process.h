@@ -1,3 +1,4 @@
+#pragma once
 typedef struct {
 	char* processName;
     int arrivalTime;

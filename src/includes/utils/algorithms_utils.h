@@ -1,4 +1,4 @@
-
+#pragma once
 void print_seperator(int t,int processes_number);
 void print_process(Process process);
 void idle_state(int processes_number);
