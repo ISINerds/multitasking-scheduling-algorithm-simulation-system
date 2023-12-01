@@ -1,7 +1,6 @@
-#ifndef PROCESS
-#define PROCESS
+#pragma once
 #include "../utils/process.h"
-#endif
+
 
 //------------ Define structures
 typedef struct Node {
