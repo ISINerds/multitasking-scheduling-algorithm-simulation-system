@@ -119,7 +119,7 @@ int main() {
         } else {
             printf("Invalid choice\n");
         }
-    } while(choice ==0 );
+    } while(choice !=0 );
 
     unload_all_algorithms(algorithms, nbAlgorithms);
     return EXIT_SUCCESS;
