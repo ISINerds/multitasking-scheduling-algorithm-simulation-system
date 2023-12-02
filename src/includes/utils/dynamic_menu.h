@@ -4,6 +4,7 @@
 #include <dlfcn.h>
 #include <string.h>
 #include "algo_result.h"
+#include "../data_structures/queue.h"
 
 
 typedef struct Algorithm {
@@ -28,7 +29,6 @@ int count_nb_algorithms(const char *dirPath){
 }
 
 int get_nb_algorithms(const char *dirPath){
-
     char command[100];
     snprintf(command,sizeof(command),"ls -1 %s | wc -l > temp_file.txt", dirPath);
     system(command);
@@ -102,25 +102,25 @@ void unload_all_algorithms(Algorithm* algorithms, int nbAlgorithms){
     free(algorithms);
 }
 
-int main() {
+// int main() {
     
-    int nbAlgorithms = get_nb_algorithms("./build/algorithms");
-    Algorithm* algorithms = load_all_algorithms("./build/algorithms");
-    display_menu(algorithms,nbAlgorithms);
+//     int nbAlgorithms = get_nb_algorithms("./build/algorithms");
+//     Algorithm* algorithms = load_all_algorithms("./build/algorithms");
+//     display_menu(algorithms,nbAlgorithms);
 
-    int choice;
-    do{
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
+//     int choice;
+//     do{
+//         printf("Enter your choice: ");
+//         scanf("%d", &choice);
 
-        if (choice >= 1 && choice <= nbAlgorithms) {
-            //TODO: call the run fct accordingly 
+//         if (choice >= 1 && choice <= nbAlgorithms) {
+//             //TODO: call the run fct accordingly 
             
-        } else {
-            printf("Invalid choice\n");
-        }
-    } while(choice !=0 );
+//         } else {
+//             printf("Invalid choice\n");
+//         }
+//     } while(choice !=0 );
 
-    unload_all_algorithms(algorithms, nbAlgorithms);
-    return EXIT_SUCCESS;
-}
+//     unload_all_algorithms(algorithms, nbAlgorithms);
+//     return EXIT_SUCCESS;
+// }

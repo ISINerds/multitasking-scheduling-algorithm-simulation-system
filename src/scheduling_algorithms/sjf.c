@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-// #include"../includes/data_structures/queue.h"
+#include"../includes/data_structures/queue.h"
 #include "../includes/utils/ProcessesTable.h"
 #include "../includes/utils/algo_result.h"
 #include "../includes/data_structures/priority_queue.h"

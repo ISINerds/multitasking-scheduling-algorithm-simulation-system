@@ -1,6 +1,6 @@
 build:
 	@mkdir ./build
-	@gcc ./src/main.c -o ./build/main 
+	@gcc ./src/main.c -o ./build/main -ldl
 	@mkdir ./build/algorithms
 	@chmod +x ./script.sh
 	@./script.sh

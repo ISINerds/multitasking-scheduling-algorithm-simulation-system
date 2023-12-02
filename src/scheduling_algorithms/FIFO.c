@@ -4,8 +4,8 @@
 #include "../includes/utils/ProcessesTable.h"
 #include "../includes/utils/algo_result.h"
 
-AlgoResult fifo(Queue* queue,int processes_number,int quantum){
-
+AlgoResult FIFO(Queue* queue,int processes_number,int quantum){
+    printf("I am here\n");
     if(is_empty_q(queue)){
         exit(EXIT_FAILURE);
     }
