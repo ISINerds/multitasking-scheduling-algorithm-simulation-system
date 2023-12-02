@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#define QUEUE
 #include "../includes/data_structures/priority_queue.h"
 #include "../includes/data_structures/queue.h"
 
 #include "../includes/utils/ProcessesTable.h"
+#include "../includes/utils/algo_result.h"
 #include<time.h>
-Queue* processesQ;
+
 
 typedef struct MultitaskProcess{
     Process process;
@@ -35,19 +37,18 @@ int compare_process_priority_multilevel(const void *a, const void *b) {
     }
 }
 
-void multilevel(int quantum,int size,Process* processes){
-    int t=0;
-    PriorityQueue* pq = init_priority_queue(size,sizeof(MultitaskProcess),compare_process_priority_multilevel);
-    
-    int *rotationTime = (int*)malloc(size*sizeof(int));
-    for(int i=0;i<size;i++){
-        rotationTime[i]=-processes[i].arrivalTime;
-    }
-    while(processesQ->front != NULL || pq->size!=0){
-        if(processesQ->front != NULL){
-            while(processesQ->front != NULL && processesQ->front->data.arrivalTime==t){
-                Process process=dequeue(processesQ);
-                MultitaskProcess pp= {0};
+AlgoResult multilevel(Queue* queue,int processNumber,int quantum){
+    int t=0,runTimeSum=0;
+    float averageRotationTime=0.0,averageWaitingTime=0.0;
+    PriorityQueue* pq = init_priority_queue(processNumber,sizeof(MultitaskProcess),compare_process_priority_multilevel);
+    AlgoResult result;
+    result.gantt=create_gantt();
+    while(queue->front != NULL || pq->size!=0){
+        if(queue->front != NULL){
+            while(queue->front != NULL && queue->front->data.arrivalTime==t){
+                Process process=dequeue(queue);
+                MultitaskProcess pp = {0};
+                runTimeSum+=process.runTime;
                 pp.process=process;
                 pp.readyFrom=t;
                 pp.new=0;
@@ -60,12 +61,12 @@ void multilevel(int quantum,int size,Process* processes){
             for(int i=0;i<quantum;i++){
                 (p->process).runTime--;
                 t++;
-                printf("%s is running form t = %d to t = %d \n",(p->process).processName,t-1,t);
                 int isPriorityBigger=0;
-                if(processesQ->front != NULL){
-                    while(processesQ->front != NULL && processesQ->front->data.arrivalTime==t){
-                        Process process=dequeue(processesQ);
+                if(queue->front != NULL){
+                    while(queue->front != NULL && queue->front->data.arrivalTime==t){
+                        Process process=dequeue(queue);
                         MultitaskProcess pp= {0};
+                        runTimeSum+=process.runTime;
                         pp.process=process;
                         pp.readyFrom=t;
                         pp.new=process.priority==(p->process).priority?1:0;
@@ -76,54 +77,63 @@ void multilevel(int quantum,int size,Process* processes){
                     }
                 }
                 if(isPriorityBigger){
+                    ReadyQueueElements elements = getPriorityQueueElements(pq);
+                    char** list = (char**)malloc(elements.readyQueueSize*sizeof(char*));
+                    for(int j=0;j<elements.readyQueueSize;j++){
+                        list[j]=((MultitaskProcess*)elements.readyQueue[j])->process.processName;
+                    }
+                    enqueue_gantt(result.gantt,t-1,(p->process).processName,(p->process).runTime==0?1:0,list,elements.readyQueueSize);
                     if((p->process).runTime!=0){
                         p->readyFrom=t;
                         p->new=0;
                         push(pq,p);
+                    }else{
+                        averageRotationTime+=t-(p->process).arrivalTime;
                     }
                     break;
                 }else{
                     if((p->process).runTime==0){
-                        for(int i=0;i<size;i++){
-                            if((p->process).processName==processes[i].processName){
-                                rotationTime[i]+=t;
-                                break;
-                            }
+                        ReadyQueueElements elements = getPriorityQueueElements(pq);
+                        char** list = (char**)malloc(elements.readyQueueSize*sizeof(char*));
+                        for(int j=0;j<elements.readyQueueSize;j++){
+                            list[j]=((MultitaskProcess*)elements.readyQueue[j])->process.processName;
                         }
+                        enqueue_gantt(result.gantt,t-1,(p->process).processName,1,list,elements.readyQueueSize);
+                        averageRotationTime+=t-(p->process).arrivalTime;
                         break;
                     }else if(i==quantum-1){
+                        ReadyQueueElements elements = getPriorityQueueElements(pq);
+                        char** list = (char**)malloc(elements.readyQueueSize*sizeof(char*));
+                        for(int j=0;j<elements.readyQueueSize;j++){
+                            list[j]=((MultitaskProcess*)elements.readyQueue[j])->process.processName;
+                        }
+                        enqueue_gantt(result.gantt,t-1,(p->process).processName,0,list,elements.readyQueueSize);
+
                         p->readyFrom=t;
                         p->new=0;
                         push(pq,p);
+                    }else{
+                        ReadyQueueElements elements = getPriorityQueueElements(pq);
+                        char** list = (char**)malloc(elements.readyQueueSize*sizeof(char*));
+                        for(int j=0;j<elements.readyQueueSize;j++){
+                            list[j]=((MultitaskProcess*)elements.readyQueue[j])->process.processName;
+                        }
+                        enqueue_gantt(result.gantt,t-1,(p->process).processName,0,list,elements.readyQueueSize);
                     }
                 }
             }
         }else{
+            enqueue_gantt(result.gantt,t,NULL,0,NULL,0);
             t++;
-            printf("idle from t=%d to t=%d\n",t-1,t);
         }
     }
-    int *waitingTime=(int*)malloc(size*sizeof(int));
-    float averageRotationTime=0.0,averageWaitingTime=0.0;
-    for(int i=0;i<size;i++){
-        waitingTime[i]=rotationTime[i]-processes[i].runTime;
-        averageWaitingTime+=waitingTime[i];
-        averageRotationTime+=rotationTime[i];
-    }
-    averageWaitingTime/=(float)size;
-    averageRotationTime/=(float)size;
-    printf("Average rotation time : %.2fs\n",averageRotationTime);
-    printf("Average waiting time : %.2fs\n" , averageWaitingTime);
+    averageWaitingTime=(averageRotationTime-runTimeSum)/(float)processNumber;
+    averageRotationTime/=(float)processNumber;
+    add_metrics(&result,averageRotationTime,averageWaitingTime);
+    return result;
 }
 
 int main(void){
-    // generate_processes_file("../config.conf","./test.txt",';');
-    // struct Process *proc = getTableOfProcesses();
-
-    // generate_processes_file("./src/config.conf", "./src/processes.txt", ';');
-    // int processes_number = getNbProcesses("./src/processes.txt");
-    // Process* processes = getTableOfProcesses("./src/processes.txt");
-
     Process processes[8] = {
         {"P1", 0, 6, 2},
         {"P2", 1, 4, 3},
@@ -134,31 +144,9 @@ int main(void){
         {"P7", 12, 5, 4},
         {"P8", 13, 2, 4},
     };
-
+    Queue* processesQ;
     processesQ = create_queue_from_array(processes,8);
-
-    multilevel(2,8,processes);
-
-    // for(int i=0;i<8;i++){
-    //     push(processesQ,&processes[i]);
-    // }
-    // char name[10];
-    // int arrivalTime ;
-    // int ExecTime;
-    // int priority;
-    // PriorityQueue *pq = init_priority_queue(8,sizeof(struct Process),compare_process_priority);
-    // for(int i=0;i<8;i++){
-    //     push(pq,&processes[i]);
-    //     printf("%s %d %d %d\n",processes[i].name,processes[i].arrivalTime,processes[i].ExecTime,processes[i].priority);
-    // }
-    // printf("-------------------\n");
-    // while(processesQ->size) {
-	// 	void* e = pop(processesQ); // pop element from the priority_queue
-   	//     printf("Popped: value=%s %d %d %d\n", ((struct Process *)e)->name, ((struct Process *)e)->arrivalTime, ((struct Process *)e)->ExecTime, ((struct Process *)e)->priority);	
-   	//     free(e); // don't forget to free the popped element
-	// }
-	
-    // free_priority_queue(pq); // free the priority_queue
+    AlgoResult res = multilevel(processesQ,8,2);
 
     return 0;
 }
