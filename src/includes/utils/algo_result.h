@@ -3,10 +3,7 @@
 #include <stdio.h>
 #include "./logs.h"
 #include "./instant_result_node.h"
-typedef struct Metrics{
-    float averageRotation;
-    float averageWaiting;
-}Metrics;
+#include "./metrics.h"
 typedef struct Gantt{
     InstantResultNode* front;
     InstantResultNode* rear;
