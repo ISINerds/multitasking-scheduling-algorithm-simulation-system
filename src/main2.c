@@ -89,7 +89,6 @@ int main(void){
     
     while (!WindowShouldClose()){
         preview_screen();
-        printf("%d\n",GetFPS());
     }
     CloseWindow();
     return 0;
