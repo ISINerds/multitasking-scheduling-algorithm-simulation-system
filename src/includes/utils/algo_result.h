@@ -19,7 +19,7 @@ void enqueue_gantt(Gantt* ganttQueue,int t,char* processName,int quit,char** rea
 InstantResultNode dequeue_gantt(Gantt* ganttQueue);
 InstantResultNode* create_instant_result_node(int t,char* processName,int quit,char** readyQueue,int readyQueueSize);
 void add_metrics(AlgoResult* algoResult,float averageRotation,float averageWaiting);
-
+int size_gantt(Gantt* ganttQueue);
 
 Gantt* create_gantt(){
     Gantt* gantt = (Gantt*)malloc(sizeof(Gantt));
@@ -55,7 +55,7 @@ InstantResultNode* create_instant_result_node(int t,char* processName,int quit,c
 
 void enqueue_gantt(Gantt* ganttQueue, int t,char* processName,int quit,char** readyQueue,int readyQueueSize){
     InstantResultNode* newInstantResultNode = create_instant_result_node(t,processName,quit,readyQueue,readyQueueSize);
-    execution_log(*newInstantResultNode);
+    // execution_log(*newInstantResultNode);
     if(is_empty_gantt(ganttQueue)){
         ganttQueue->front = newInstantResultNode;
         ganttQueue->rear  = newInstantResultNode;
@@ -82,7 +82,15 @@ void add_metrics(AlgoResult* algoResult,float averageRotation,float averageWaiti
     algoResult->metrics.averageWaiting  = averageWaiting;
 }
 
-
+int size_gantt(Gantt* ganttQueue){
+    InstantResultNode* current_node = ganttQueue->front;
+    int size=0;
+    while(current_node != NULL){
+        size++;
+        current_node = current_node->next;
+    }
+    return size;
+} 
 
 // example :
 // #include<stdio.h>
