@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define QUEUE
 #include "../includes/data_structures/priority_queue.h"
 #include "../includes/data_structures/queue.h"
 
@@ -134,19 +133,21 @@ AlgoResult multilevel(Queue* queue,int processNumber,int quantum){
 }
 
 int main(void){
-    Process processes[8] = {
-        {"P1", 0, 6, 2},
-        {"P2", 1, 4, 3},
-        {"P3", 2, 5, 3},
-        {"P4", 4, 2, 1},
-        {"P5", 5, 4, 1},
-        {"P6", 6, 5, 2},
-        {"P7", 12, 5, 4},
-        {"P8", 13, 2, 4},
-    };
+    // Process processes[8] = {
+    //     {"P1", 0, 6, 2},
+    //     {"P2", 1, 4, 3},
+    //     {"P3", 2, 5, 3},
+    //     {"P4", 4, 2, 1},
+    //     {"P5", 5, 4, 1},
+    //     {"P6", 6, 5, 2},
+    //     {"P7", 12, 5, 4},
+    //     {"P8", 13, 2, 4},
+    // };
+    Process* processes = getTableOfProcesses("../processes.txt");
+    int nbProcesses = getNbProcesses("../processes.txt");
     Queue* processesQ;
-    processesQ = create_queue_from_array(processes,8);
-    AlgoResult res = multilevel(processesQ,8,2);
-
+    processesQ = create_queue_from_array(processes,nbProcesses);
+    AlgoResult res = multilevel(processesQ,nbProcesses,2);
+    printf("%f %f\n", res.metrics.averageRotation, res.metrics.averageWaiting);
     return 0;
 }

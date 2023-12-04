@@ -25,6 +25,23 @@ int started = 0;
 int currFrame = 0;
 Rectangle* ganttRectangles = NULL;
 int ganttRectanglesSize = 0;
+int ganttSize = 0;
+
+//----------------
+//algosdropdown
+int selectedAlgoIndex = 0;
+bool algosDropDown1EditMode = false;
+//-----------
+//quantumslider
+int quantumValue = 0;
+bool quantumSpinnerEditMode = false;
+//----------
+//startbutton
+//----------
+int isStartButtonPressed = false;
+//---------------
+//TODO return the names of all algorithms like this "algo1;algo2;algo3;algo4"
+char* algosList;
 
 void render_job_pool(Rectangle boundry){
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
@@ -33,13 +50,17 @@ void render_job_pool(Rectangle boundry){
 void render_gantt(Rectangle boundry){
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
     DrawTextEx(font,"Gantt",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
-    if(started && currFrame%60==0){
+    if(isStartButtonPressed && is_empty_gantt(algoResult.gantt)) {
+        isStartButtonPressed = false;
+
+    }
+    if(isStartButtonPressed && currFrame%60==0){
         currNode = dequeue_gantt(algoResult.gantt);
         ganttRectanglesSize++;
         ganttRectangles[ganttRectanglesSize-1]=(Rectangle){
-            .x=boundry.x+100+60*(ganttRectanglesSize-1),
+            .x=boundry.x+textPadding+((boundry.width - 20 - ganttSize + 1) / ganttSize + 1)*(ganttRectanglesSize-1),
             .y=boundry.y+50,
-            .width=50,
+            .width=(boundry.width - 20 - ganttSize + 1)/ganttSize,
             .height=100,
         };
         if(is_empty_gantt(algoResult.gantt)){
@@ -59,23 +80,74 @@ void render_stats(Rectangle boundry){
 void render_menu(Rectangle boundry){
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
     DrawTextEx(font,"Menu",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
-    int isStartButtonPressed = GuiButton((Rectangle){boundry.x+(boundry.width)/2,boundry.y+(boundry.height)/2,100,100},"Start");
-    if(isStartButtonPressed && !started){
-        Process processes[] = {
-            {"Process1", 0, 5, 3},
-            {"Process2", 1, 3, 2},
-            {"Process3", 2, 1, 4},
-            {"Process4", 4, 2, 1},
-        };
-        int processes_number = 4;
-        Queue* q = create_queue_from_array(processes,processes_number);
-        printf("%s\n",algorithms[1].name);
-        algoResult = algorithms[1].run(q,processes_number,1);
-        started = 1;
-        int queueSize = size_gantt(algoResult.gantt);
-        printf("%d\n",queueSize);
-        ganttRectangles = (Rectangle*) malloc(queueSize*sizeof(Rectangle));
+    DrawTextEx(font,"Scheduling Algorithms",(Vector2){boundry.x+textPadding, boundry.y+3*textPadding},textSize,0,RED);
+    if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+18*textPadding,boundry.width - 20,30},"Start")) {
+        if(!isStartButtonPressed) {
+            isStartButtonPressed = true;
+            printf("pressed\n");
+        }
     }
+    if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+22*textPadding,boundry.width - 20,30},"Reset")) {
+        if(!isStartButtonPressed) {
+            //generate processes
+
+        }
+    }
+    
+    DrawTextEx(font,"Quantum",(Vector2){boundry.x+textPadding, boundry.y+8*textPadding},textSize,0,RED);
+    GuiSpinner((Rectangle){ boundry.x+textPadding, boundry.y+12*textPadding, boundry.width - 20, 30 }, NULL, &quantumValue, 1, 10, quantumSpinnerEditMode);
+
+
+    // if (algosDropDown1EditMode) GuiLock();
+    // GuiUnlock();
+    GuiSetStyle(DROPDOWNBOX, TEXT_PADDING, 4);
+    GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, TEXT_ALIGN_LEFT);
+    if(GuiDropdownBox((Rectangle){boundry.x+textPadding, boundry.y+6*textPadding,boundry.width-20,25}, "FIFO;SRT;multilevel;sjf;round_robin", &selectedAlgoIndex, algosDropDown1EditMode)) {
+         algosDropDown1EditMode = !algosDropDown1EditMode;
+         if(!algosDropDown1EditMode && !isStartButtonPressed) {
+            // GuiLock();
+            printf("selected algo: %d his name is %s quantum is %d\n", selectedAlgoIndex, algorithms[selectedAlgoIndex].name, quantumValue);
+            // Process processes[] = {
+            //     {"Process1", 0, 5, 3},
+            //     {"Process2", 1, 3, 2},
+            //     {"Process3", 2, 1, 4},
+            //     {"Process4", 4, 2, 1},
+            // };
+            // int processes_number = 4;
+            int processes_number = getNbProcesses("./processes.txt");
+            Process* processes = getTableOfProcesses("./processes.txt");
+            Queue* q = create_queue_from_array(processes,processes_number);
+            algoResult = algorithms[selectedAlgoIndex].run(q, processes_number, quantumValue);
+            printf("%f %f\n", algoResult.metrics.averageRotation, algoResult.metrics.averageWaiting);
+            ganttSize = size_gantt(algoResult.gantt);
+            printf("%d\n",ganttSize);
+            ganttRectangles = (Rectangle*) malloc(ganttSize*sizeof(Rectangle));
+            freeProcesses();
+            // GuiUnlock();
+         }
+         
+    }
+    // GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, TEXT_ALIGN_CENTER);
+    // GuiSetStyle(DROPDOWNBOX, TEXT_PADDING, 0);
+    
+    
+
+    // if(isStartButtonPressed && !started){
+    //     Process processes[] = {
+    //         {"Process1", 0, 5, 3},
+    //         {"Process2", 1, 3, 2},
+    //         {"Process3", 2, 1, 4},
+    //         {"Process4", 4, 2, 1},
+    //     };
+    //     int processes_number = 4;
+    //     Queue* q = create_queue_from_array(processes,processes_number);
+    //     printf("%s\n",algorithms[1].name);
+    //     algoResult = algorithms[1].run(q,processes_number,1);
+    //     started = 1;
+    //     int queueSize = size_gantt(algoResult.gantt);
+    //     printf("%d\n",queueSize);
+    //     ganttRectangles = (Rectangle*) malloc(queueSize*sizeof(Rectangle));
+    // }
 }
 void preview_screen(void){
     int w = GetRenderWidth();
@@ -116,13 +188,16 @@ void preview_screen(void){
 int main(void){
     const int screenWidth = 900;
     const int screenHeight = 500;
-    SetTraceLogLevel(LOG_NONE);
+    // SetTraceLogLevel(LOG_NONE);
     InitWindow(screenWidth, screenHeight, "Multitasking Scheduling Algorithm Simulation System");
     font = LoadFont("../assets/fonts/DelaGothicOne-Regular.ttf");
     SetTargetFPS(60);
 
     numberOfAlgo = get_nb_algorithms("../build/algorithms");
     algorithms = load_all_algorithms("../build/algorithms");
+    for(int i=0;i<numberOfAlgo;i++) {
+        printf("%s\n", algorithms[i].name);
+    }
     while (!WindowShouldClose()){
         // printf("%d\n",started);
         preview_screen();
