@@ -12,7 +12,12 @@
         "readyqueueelements.h": "c",
         "dynamic_menu.h": "c",
         "raygui.h": "c",
-        "zraygui.h": "c"
+        "zraygui.h": "c",
+        "initializer_list": "c",
+        "type_traits": "c",
+        "vector": "c",
+        "xstring": "c",
+        "xutility": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
