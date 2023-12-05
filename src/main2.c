@@ -23,7 +23,7 @@ InstantResultNode currNode;
 int numberOfAlgo = 0;
 int started = 0;
 int currFrame = 0;
-Rectangle* ganttRectangles = NULL;
+InstantResultNode* ganttRectangles = NULL;
 int ganttRectanglesSize = 0;
 int ganttSize = 0;
 
@@ -57,18 +57,18 @@ void render_gantt(Rectangle boundry){
     if(isStartButtonPressed && currFrame%60==0){
         currNode = dequeue_gantt(algoResult.gantt);
         ganttRectanglesSize++;
-        ganttRectangles[ganttRectanglesSize-1]=(Rectangle){
-            .x=boundry.x+textPadding+((boundry.width - 20 - ganttSize + 1) / ganttSize + 1)*(ganttRectanglesSize-1),
-            .y=boundry.y+50,
-            .width=(boundry.width - 20 - ganttSize + 1)/ganttSize,
-            .height=100,
-        };
+        ganttRectangles[ganttRectanglesSize-1]=currNode;
         if(is_empty_gantt(algoResult.gantt)){
             started = 0;
         }
     }
     for(int i=0;i<ganttRectanglesSize;i++){
-        DrawRectangleRounded(ganttRectangles[i],0.1,20,RED);
+        DrawRectangleRounded((Rectangle){
+            .x=boundry.x+textPadding+((boundry.width - 20 - ganttSize + 1) / ganttSize + 1)*i,
+            .y=boundry.y+50,
+            .width=(boundry.width - 20 - ganttSize + 1)/ganttSize,
+            .height=100,
+        },0.1,20,RED);
     }
 
 }
@@ -117,10 +117,11 @@ void render_menu(Rectangle boundry){
             int processes_number = getNbProcesses("./processes.txt");
             Process* processes = getTableOfProcesses("./processes.txt");
             Queue* q = create_queue_from_array(processes,processes_number);
+            printf("I about to run the algo \n");
             algoResult = algorithms[selectedAlgoIndex].run(q, processes_number, quantumValue);
             printf("%f %f\n", algoResult.metrics.averageRotation, algoResult.metrics.averageWaiting);
             ganttSize = size_gantt(algoResult.gantt);
-            printf("%d\n",ganttSize);
+            printf("gantt size = %d\n",ganttSize);
             ganttRectangles = (Rectangle*) malloc(ganttSize*sizeof(Rectangle));
             freeProcesses();
             // GuiUnlock();
@@ -192,7 +193,7 @@ int main(void){
     InitWindow(screenWidth, screenHeight, "Multitasking Scheduling Algorithm Simulation System");
     font = LoadFont("../assets/fonts/DelaGothicOne-Regular.ttf");
     SetTargetFPS(60);
-
+    generate_processes_file("config.conf","processes.txt",';');
     numberOfAlgo = get_nb_algorithms("../build/algorithms");
     algorithms = load_all_algorithms("../build/algorithms");
     for(int i=0;i<numberOfAlgo;i++) {
