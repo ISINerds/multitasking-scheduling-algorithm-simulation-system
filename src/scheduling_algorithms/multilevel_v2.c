@@ -5,7 +5,7 @@
 
 #include "../includes/utils/ProcessesTable.h"
 #include "../includes/utils/processes_generator.h"
-
+#include "../includes/utils/algo_result.h"
 Queue* processesQ;
 
 
@@ -13,15 +13,55 @@ int compare_int_return_bigger(const void *a, const void *b) {
     return (*(int *)a > *(int *)b);
 }
 
+void getInstantResult(Queue** queues, int* readyQueueSize, char*** list, int maximumPriorityClass) {
+    (*readyQueueSize) = -1;
+    for(int i=maximumPriorityClass;i;i--) {
+        Node* q = queues[i]->front;
+        while(q) {
+            (*readyQueueSize)++;
+            q = q->next;
+        }
+    }
+    if(!readyQueueSize) {
+        *readyQueueSize = 0;
+        (*list)=NULL;
+        return;
+    }
+    (*list) = (char**)malloc((*readyQueueSize)*sizeof(char*));
+    int idx = 0;
+    bool isFirstNode = false;
+    for(int i=maximumPriorityClass;i;i--) {
+        Node* q = queues[i]->front;
+        if(!isFirstNode && q) {
+            isFirstNode = true;
+            q = q->next;
+        }
+        while(q) {
+            (*list)[idx++] = q->data.processName;
+            q = q->next;
+        }
+    }
+    // for(int j=0;j<(*readyQueueSize);j++){
+    //     printf("%s ", (*list)[j]);
+    // }
+    // printf("here\n");
+    // printf("\n");
+}
 
-void multilevel(int quantum,int size){
+AlgoResult multilevel_v2(Queue* processesQ,int processNumber,int quantum){
+    int maximumPriorityClass = maximumPriorityLevel("./config.conf");
+    // printf("max prio = %d\n", maximumPriorityClass);
     int t=0;
-    PriorityQueue* pq = init_priority_queue(7,sizeof(int),compare_int_return_bigger);
-    Queue** queues = (Queue**) malloc(7 * sizeof(Queue*));
-    for(int i=0;i<7;i++) {
+    float totalRotationTime = 0, totalExecutionTime = 0;
+    PriorityQueue* pq = init_priority_queue(maximumPriorityClass,sizeof(int),compare_int_return_bigger);
+    AlgoResult result;
+    result.gantt=create_gantt();
+    Queue** queues = (Queue**) malloc((maximumPriorityClass + 1) * sizeof(Queue*));
+    for(int i=0;i<=maximumPriorityClass;i++) {
         queues[i] = create_queue();
     }
     while(processesQ->front != NULL || pq->size!=0){
+    // printf("here\n");
         if(processesQ->front != NULL){
             while(processesQ->front != NULL && processesQ->front->data.arrivalTime==t){
                 int priority = processesQ->front->data.priority;
@@ -38,8 +78,18 @@ void multilevel(int quantum,int size){
             Node* currProcessNode = queues[currPriority]->front;
             for(int i=0;i<quantum;i++){
                 currProcessNode->data.runTime--;
+                totalExecutionTime++;
                 t++;
                 printf("%s is running from t = %d to t = %d\n",currProcessNode->data.processName,t-1,t);
+
+                int readyQueueSize = 0;
+                char** list;
+                getInstantResult(queues, &readyQueueSize, &list, maximumPriorityClass);
+                enqueue_gantt(result.gantt,t-1,currProcessNode->data.processName,currProcessNode->data.runTime==0?1:0,list,readyQueueSize);
+
+                if(currProcessNode->data.runTime == 0) {
+                    totalRotationTime += t;
+                }
                 int isPriorityBigger=0;
                 int samePriorityPushed = 0;
                 if(processesQ->front != NULL){
@@ -60,6 +110,20 @@ void multilevel(int quantum,int size){
                     }
                 }
                 if(isPriorityBigger){
+                    // printf("here\n");
+
+                    // ReadyQueueElements existingPriorities = getPriorityQueueElements(pq);
+                    // int* existingPrioritiesList = (int*)malloc(existingPriorities.readyQueueSize * sizeof(int));
+                    // for(int i=0;i<existingPriorities.readyQueueSize;i++) {
+                    //     existingPrioritiesList[i] = *(int*)existingPriorities.readyQueue[i];
+                    //     printf("%d ", existingPrioritiesList[i]);
+                    // }
+                    // printf("\n");
+                    // for(int i=0;i<existingPriorities.readyQueueSize;i++) {
+                    //     int priorityLevel = existingPrioritiesList[i];
+                    // }
+                    
+
                     Process finishedProcess = dequeue(queues[currPriority]);
                     if((!is_empty_q(queues[currPriority]) || (finishedProcess.runTime != 0) && !samePriorityPushed)) {
                         push(pq, &currPriority);
@@ -85,114 +149,33 @@ void multilevel(int quantum,int size){
                 }
             }
         }else{
+            enqueue_gantt(result.gantt,t,NULL,0,NULL,0);
             t++;
-            printf("idle from t=%d to t=%d\n",t-1,t);
+            // printf("idle from t=%d to t=%d\n",t-1,t);
         }
         
     }
-    for(int i=0;i<7;i++) {
+    for(int i=0;i<maximumPriorityClass+1;i++) {
         free(queues[i]);
     }
     free(queues);   
+    float averageRotationTime = (float)totalRotationTime / processNumber;
+    float averageWaitingTime = (float)(totalRotationTime - totalExecutionTime) / processNumber;
+    // totalWaitingTime=(averageRotationTime-runTimeSum)/(float)processNumber;
+    // averageRotationTime/=(float)processNumber;
+    add_metrics(&result,averageRotationTime,averageWaitingTime);
+    // printf("final result: %d\n", size_gantt(result.gantt));
+    return result;
 }
-
-typedef struct MultitaskProcess{
-    Process process;
-    int readyFrom;
-    int new;
-}MultitaskProcess;
-
-
-
-int compare_process_priority_multilevel(const void *a, const void *b) {
-    if((((MultitaskProcess*)a)->process).priority < (((MultitaskProcess*)b)->process).priority){
-        return -1;
-    }else if((((MultitaskProcess*)a)->process).priority > (((MultitaskProcess*)b)->process).priority){
-        return 1;
-    }else{
-        if(((MultitaskProcess*)a)->readyFrom > ((MultitaskProcess*)b)->readyFrom){
-            return -1;
-        }else if(((MultitaskProcess*)a)->readyFrom < ((MultitaskProcess*)b)->readyFrom){
-            return 1;
-        }else{
-            if(((MultitaskProcess*)a)->new > ((MultitaskProcess*)b)->new){
-                return 1;
-            }else{
-                return -1;
-            }
-        }
-    }
-}
-
-void multilevel2(int quantum,int size){
-    int t=0;
-    PriorityQueue* pq = init_priority_queue(size,sizeof(MultitaskProcess),compare_process_priority_multilevel);
-    while(processesQ->front != NULL || pq->size!=0){
-        if(processesQ->front != NULL){
-            while(processesQ->front != NULL && processesQ->front->data.arrivalTime==t){
-                Process process=dequeue(processesQ);
-                MultitaskProcess pp= {0};
-                pp.process=process;
-                pp.readyFrom=t;
-                pp.new=0;
-                push(pq,&pp);
-            }
-        }
-        if(pq->size!=0){
-            MultitaskProcess* p = (MultitaskProcess *)pop(pq);
-
-            for(int i=0;i<quantum;i++){
-                (p->process).runTime--;
-                t++;
-                printf("%s is running from t = %d to t = %d\n",(p->process).processName,t-1,t);
-                int isPriorityBigger=0;
-                if(processesQ->front != NULL){
-                    while(processesQ->front != NULL && processesQ->front->data.arrivalTime==t){
-                        Process process=dequeue(processesQ);
-                        MultitaskProcess pp= {0};
-                        pp.process=process;
-                        pp.readyFrom=t;
-                        pp.new=process.priority==(p->process).priority?1:0;
-                        if(process.priority>(p->process).priority){
-                            isPriorityBigger=1;
-                        }
-                        push(pq,&pp);
-                    }
-                }
-                if(isPriorityBigger){
-                    if((p->process).runTime!=0){
-                        p->readyFrom=t;
-                        p->new=0;
-                        push(pq,p);
-                    }
-                    break;
-                }else{
-                    if((p->process).runTime==0){
-                        break;
-                    }else if(i==quantum-1){
-                        p->readyFrom=t;
-                        p->new=0;
-                        push(pq,p);
-                    }
-                }
-            }
-        }else{
-            t++;
-            printf("idle from t=%d to t=%d\n",t-1,t);
-        }
-        
-    }
-    
-}
-
 
 int main(int argc, char* argv[]){
-    int processes_number = getNbProcesses("./src/processes.txt");
-    Process* processes = getTableOfProcesses("./src/processes.txt");
+    int processes_number = getNbProcesses("./processes.txt");
+    Process* processes = getTableOfProcesses("./processes.txt");
 
     processesQ = create_queue_from_array(processes,processes_number);
     
-    multilevel(2,processes_number);
+    printf("%d\n", size_gantt(multilevel_v2(processesQ, processes_number, 2).gantt));
+    multilevel_v2(processesQ, processes_number, 2);
     // for(int i=0;i<8;i++){
     //     push(processesQ,&processes[i]);
     // }

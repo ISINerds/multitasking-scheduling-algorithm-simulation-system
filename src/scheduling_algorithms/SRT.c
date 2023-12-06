@@ -45,11 +45,16 @@ AlgoResult SRT (Queue * Q,int sizeOfArray, int quantum) {
                 firstP=dequeue(Q);
                 push(PQ, &firstP);
                 printf("%s\n",firstP.processName);
-                Process firstP = (Q->front)->data ;
+                // Process firstP = (Q->front)->data ;
             }
         }
         if (!is_empty_pq(PQ)){
 
+
+            electedProcess = (Process *)pop(PQ);
+            //printf("\n Process %s is executing from t: %d to t: %d \n",electedProcess->processName,current_time,current_time+1);
+            electedProcess->runTime--;
+            
             ReadyQueueElements RQElements = getPriorityQueueElements(PQ);
             char** tableofNames=(char**)malloc(RQElements.readyQueueSize*sizeof(char*));
             //printf(" At instant t= %d ready queue is : ",current_time);
@@ -64,9 +69,7 @@ AlgoResult SRT (Queue * Q,int sizeOfArray, int quantum) {
             // }
             //printf("\n");
 
-            electedProcess = (Process *)pop(PQ);
-            //printf("\n Process %s is executing from t: %d to t: %d \n",electedProcess->processName,current_time,current_time+1);
-            electedProcess->runTime--;
+            
 
             if (electedProcess->runTime==0){
                 completed_processes++;

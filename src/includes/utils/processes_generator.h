@@ -18,7 +18,7 @@ typedef struct Conf {
 int random_between(int min, int max); // Generates a random number within the given interval. Before calling this function, ensure to call srand(time(NULL)) to change the seed.
 Conf read_configuration_file(const char* file_path); // Reads the configuration file and returns a struct containing the configuration.
 void generate_processes_file(const char* configuration_file_path,const char*file_name, const char seperator); // Generates the processes file.
-
+int maximumPriorityLevel(const char* file_path);
 
 int random_between(int min, int max){
     if(max>RAND_MAX){
@@ -81,3 +81,7 @@ void generate_processes_file(const char* configuration_file_path,const char*file
     fclose(file);
 }
 
+int maximumPriorityLevel(const char* configuration_file_path) {
+    Conf conf = read_configuration_file(configuration_file_path);
+    return conf.priority_classes;
+}
