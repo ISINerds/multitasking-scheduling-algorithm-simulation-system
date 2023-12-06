@@ -28,6 +28,7 @@ int ReadyQrectangleHeight = 50;
 
 Algorithm* algorithms = NULL;
 Process* processes = NULL;
+int processes_number = 0;
 AlgoResult algoResult = {NULL, {0, 0}};
 InstantResultNode currNode;
 int numberOfAlgo = 0;
@@ -60,11 +61,11 @@ void render_job_pool(Rectangle boundry){
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
     DrawTextEx(font,"Job pool",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
 
-    const char* path = "./processes.txt";
-
-    Process* table_processes = getTableOfProcesses(path);  
-    // int number_processes = getNbProcesses(path);  SEGmentation fault when i click reset multiple times
-    int number_processes = 10; 
+    // const char* path = "./processes.txt";
+    // int number_processes = getNbProcesses(path);  //SEGmentation fault when i click reset multiple times
+    // printf("here %d\n", number_processes);
+    // Process* table_processes = getTableOfProcesses(path);  
+    // int number_processes = 10; 
     int padding_x = 50;
     int padding_y_top = 60;
     int padding_y_bottom = 20;
@@ -75,7 +76,7 @@ void render_job_pool(Rectangle boundry){
 
 
     float column_width =width/4;
-    float row_height = height/number_processes;
+    float row_height = height/(processes_number+1);
 
     int current_y=0;
     for(int current_x=0;current_x<4;current_x++){
@@ -109,11 +110,11 @@ void render_job_pool(Rectangle boundry){
     }
     current_y++;
 
-    for(int current_x=0;current_y<10;current_y++ ){
+    for(int current_y=0;current_y<processes_number;current_y++ ){
         for(int current_x=0;current_x<4;current_x++){
             Rectangle rect={
                 .x = current_x*column_width + padding_x/2,
-                .y = current_y*row_height + padding_y_top,
+                .y = (current_y+1)*row_height + padding_y_top,
                 .width = column_width,
                 .height = row_height,
             } ;
@@ -122,16 +123,16 @@ void render_job_pool(Rectangle boundry){
             switch (current_x)
             {
             case 0:
-                DrawText(table_processes[current_y].processName,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                DrawText(processes[current_y].processName,rect.x + 10, rect.y+10, 20, DARKGRAY);
                 break;
             case 1:
-                DrawText(TextFormat("%d", table_processes[current_y].arrivalTime) ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                DrawText(TextFormat("%d", processes[current_y].arrivalTime) ,rect.x + 10, rect.y+10, 20, DARKGRAY);
                 break;
             case 2:
-                DrawText(TextFormat("%d", table_processes[current_y].runTime) ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                DrawText(TextFormat("%d", processes[current_y].runTime) ,rect.x + 10, rect.y+10, 20, DARKGRAY);
                 break;
             case 3:
-                DrawText(TextFormat("%d", table_processes[current_y].priority) ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                DrawText(TextFormat("%d", processes[current_y].priority) ,rect.x + 10, rect.y+10, 20, DARKGRAY);
                 break;
             
             default:
@@ -141,7 +142,6 @@ void render_job_pool(Rectangle boundry){
     }
 }
 void render_gantt(Rectangle boundry){
-    // printf("from gantt\n");
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
     DrawTextEx(font,"Gantt",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
     if(isStartButtonPressed && algoResult.gantt &&  is_empty_gantt(algoResult.gantt)) {
@@ -249,7 +249,6 @@ void render_stats(Rectangle boundry){
     // -------------------
 }
 void render_menu(Rectangle boundry){
-    // printf("from menu\n");
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
     DrawTextEx(font,"Menu",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
     DrawTextEx(font,"Scheduling Algorithms",(Vector2){boundry.x+textPadding, boundry.y+3*textPadding},textSize,0,RED);
@@ -265,8 +264,8 @@ void render_menu(Rectangle boundry){
             }
             printf("pressed\n");
             printf("selected algo: %d his name is %s quantum is %d\n", selectedAlgoIndex, algorithms[selectedAlgoIndex].name, quantumValue);
-            int processes_number = getNbProcesses("./processes.txt");
-            Process* processes = getTableOfProcesses("./processes.txt");
+            // processes_number = getNbProcesses("./processes.txt");
+            // processes = getTableOfProcesses("./processes.txt");
             Queue* q = create_queue_from_array(processes,processes_number);
             printf("I about to run the algo \n");
 
@@ -274,7 +273,9 @@ void render_menu(Rectangle boundry){
             printf("%f %f\n", algoResult.metrics.averageRotation, algoResult.metrics.averageWaiting);
             ganttSize = size_gantt(algoResult.gantt);
             printf("gantt size = %d\n",ganttSize);
+            printf("begin problem\n");
             ganttRectangles = (InstantResultNode*) malloc(ganttSize*sizeof(InstantResultNode));
+            printf("end problem\n");
             isStartButtonPressed = true;
             // freeProcesses(); //if you uncomment this line, then the processname in the readyqueue will be random and not understandable
             
@@ -287,6 +288,8 @@ void render_menu(Rectangle boundry){
             printf("new file generated\n");
             ganttSize = 0;
             ganttRectanglesSize = 0;
+            processes_number = getNbProcesses("./processes.txt");
+            processes = getTableOfProcesses("./processes.txt");
             if(ganttRectangles) {
                 printf("ganttrectangles are being freed\n");
                 free(ganttRectangles);
@@ -353,12 +356,15 @@ int main(void){
     SetTargetFPS(60);
     numberOfAlgo = get_nb_algorithms("../build/algorithms");
     algorithms = load_all_algorithms("../build/algorithms");
+    processes_number = getNbProcesses("./processes.txt");
+    processes = getTableOfProcesses("./processes.txt");
+
     for(int i=0;i<numberOfAlgo;i++) {
         strcat(algoOptions,algorithms[i].name);
         if(i<numberOfAlgo-1)strcat(algoOptions,";");
     }
     printf("%s\n", algoOptions);
-    while (!WindowShouldClose()){
+    while(!WindowShouldClose()) {
         preview_screen();
         currFrame++;
         currFrame%=60;

@@ -104,11 +104,14 @@ void sort_by_arrival_time(Process* processes, int numProcesses){
 
 //------------ Create a queue from an array
 Queue* create_queue_from_array( Process* processes,int numProcesses){
+    Process* copy_from_processes = (Process*)malloc(numProcesses * sizeof(Process));
+    memcpy(copy_from_processes, processes, numProcesses * sizeof(Process));
     Queue* queue = create_queue();
-    sort_by_arrival_time(processes,numProcesses);
+    sort_by_arrival_time(copy_from_processes,numProcesses);
     for (int i = 0; i < numProcesses; i++){
-        enqueue(queue, processes[i]);
+        enqueue(queue, copy_from_processes[i]);
     }
+    free(copy_from_processes);
     return queue;
 }
 
