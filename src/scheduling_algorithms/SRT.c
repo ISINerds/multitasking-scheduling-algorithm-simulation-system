@@ -24,7 +24,7 @@
 AlgoResult SRT (Queue * Q,int sizeOfArray, int quantum) {
 
     PriorityQueue * PQ = init_priority_queue(sizeOfArray,sizeof(Process),compare_process_runTime);
-
+    printf("init queue Done\n");
     int idle=0;
     int tRotation=0;
     int allRunTimes=0;
@@ -36,14 +36,16 @@ AlgoResult SRT (Queue * Q,int sizeOfArray, int quantum) {
 
     //algo result
     Gantt * gantt= create_gantt();
-
+    printf("created gantt\n");
     while(completed_processes<sizeOfArray) {
         if (!is_empty_q(Q)) {
             Process firstP = (Q->front)->data ;
-            if (firstP.arrivalTime==current_time) {
+            while (!is_empty_q(Q)&& firstP.arrivalTime<=current_time) {
                 allRunTimes += firstP.runTime;
                 firstP=dequeue(Q);
                 push(PQ, &firstP);
+                printf("%s\n",firstP.processName);
+                Process firstP = (Q->front)->data ;
             }
         }
         if (!is_empty_pq(PQ)){
@@ -89,7 +91,9 @@ AlgoResult SRT (Queue * Q,int sizeOfArray, int quantum) {
         }        
 
         current_time++;
+        printf("current Time  = %d\n",current_time);
     }
+    printf("Done running the algo \n");
     tWaiting -= allRunTimes;
     float averageWaitingTime = (float) tWaiting/sizeOfArray;
     float averageRotationTime= (float) tRotation/sizeOfArray;

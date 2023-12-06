@@ -33,6 +33,7 @@ int getNbProcesses(const char* file_path) {
         printf("Error opening the processes file");
         return 0;
     }
+    fclose(fPointer);
 }
 
 
@@ -103,6 +104,7 @@ Process *getTableOfProcesses(const char* file_path) {
         printf("Error opening the processes file");
         return NULL;
     }
+    fclose(fPointer);
 }
 
 void freeProcesses() {
