@@ -2,7 +2,7 @@
 #include "./includes/utils/processes_generator.h"
 #include "./includes/utils/ProcessesTable.h"
 #include "./includes/utils/algo_result.h"
-
+#define min(a,b) (((a) < (b)) ? (a) : (b))
 #define RAYGUI_IMPLEMENTATION
 #include "../build_raylib/_deps/raygui-src/src/raygui.h"
 #include "raylib.h"
@@ -16,6 +16,16 @@
 #define backgroundColor (Color){255,255,255,1}
 Font font;
 
+typedef struct {
+    int x;
+    int y;
+    int width;
+    int height;
+    Color color;
+} RectangleData;
+int ReadyQrectangleWidth = 70;
+int ReadyQrectangleHeight = 50;
+
 Algorithm* algorithms = NULL;
 Process* processes = NULL;
 AlgoResult algoResult = {NULL, {0, 0}};
@@ -26,7 +36,7 @@ int currFrame = 0;
 InstantResultNode* ganttRectangles = NULL;
 int ganttRectanglesSize = 0;
 int ganttSize = 0;
-
+char algoOptions[];
 //----------------
 //algosdropdown
 int selectedAlgoIndex = 0;
@@ -83,16 +93,86 @@ void render_gantt(Rectangle boundry){
 
 }
 void render_stats(Rectangle boundry){
+    int ww=boundry.width/5;
+    int hh=boundry.height/8;
+    int rectww=boundry.width/4;
+    int recthh=boundry.height/8;
+    int subTitleTextFront = boundry.width/20;
+
+
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
     DrawTextEx(font,"Stats",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
-    DrawTextEx(font,currNode.readyQueueSize!=0?currNode.readyQueue[0]:"",(Vector2){boundry.x+boundry.width/2,boundry.y+boundry.height/2},textSize,0,RED);
+
+    // ----------------
+    DrawTextEx(font,"Current job",(Vector2){boundry.x+textPadding, boundry.y+boundry.height/6},subTitleTextFront+subTitleTextFront*0.2,0,BLACK);
+    if(ganttSize!=0){
+        if(currNode.readyQueueSize!=0){
+            for(int i=0;i<min(4,currNode.readyQueueSize);i++){
+                Color c = BLACK;
+                if(currNode.readyQueue[i][1] - '0' != -46) {
+                    // != null (idle state)
+                    c = colors[currNode.readyQueue[i][1] - '0'];
+                }
+                DrawRectangleRounded((Rectangle){
+                    .x=boundry.x+textPadding+(boundry.width*.2)*i,
+                    .y=boundry.y+boundry.height/4,
+                    .width=50,
+                    .height=boundry.height/6,
+                },0.1,20,c);
+                DrawTextEx(font,currNode.readyQueue[i],(Vector2){boundry.x+textPadding+(boundry.width*.2)*i+25, boundry.y+boundry.height/4+boundry.height/12},subTitleTextFront,0,BLACK);
+            }
+        }
+    }
+    // ----------------
+    // DrawTextEx(font,currNode.readyQueueSize!=0?currNode.readyQueue[0]:"",(Vector2){boundry.x+boundry.width/2,boundry.y+boundry.height/2},textSize,0,RED);
+    // ------------------
+    DrawTextEx(font,"Current job",(Vector2){boundry.x+boundry.width/8+abs(ww-rectww)/2, boundry.y+2*boundry.height/4-hh/2},subTitleTextFront,0,BLACK);
+    DrawRectangle(boundry.x+boundry.width/8+abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh,WHITE);
+    DrawRectangleLinesEx((Rectangle){boundry.x+boundry.width/8+abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh},3, BLACK);
+    if(ganttSize!=0)DrawTextEx(font,currNode.processName,(Vector2){boundry.x+boundry.width/8+abs(ww-rectww)/2+ww/2-subTitleTextFront/2, boundry.y+2*boundry.height/4+hh/2-subTitleTextFront/2},subTitleTextFront,0,BLACK);
+
+    //GuiIconText(ICON_REPEAT,"") ;
+    // DrawTextEx(font,"Current time",(Vector2){boundry.x+2.2*boundry.width/3, boundry.y+2.2*ReadyQrectangleHeight},subTitleTextFront,0,BLACK);
+    DrawTextEx(font,"Current time",(Vector2){boundry.x+boundry.width-ww-boundry.width/8-abs(ww-rectww)/2, boundry.y+2*boundry.height/4-hh/2},subTitleTextFront,0,BLACK);
+    DrawRectangle(boundry.x+boundry.width-ww-boundry.width/8-abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh,WHITE);
+    DrawRectangleLinesEx((Rectangle){boundry.x+boundry.width-ww-boundry.width/8-abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh},3, BLACK);
+    // ADD the time here
+    char ss[20];
+    sprintf(ss,"%d",ganttRectanglesSize);
+    DrawTextEx(font,ss,(Vector2){boundry.x+boundry.width-ww-boundry.width/8-abs(ww-rectww)/2+ww/2-subTitleTextFront/2, boundry.y+2*boundry.height/4+hh/2-subTitleTextFront/2},subTitleTextFront,0,BLACK);
+
+
+    // DrawTextEx(font,"Average rotation time",(Vector2){boundry.x+boundry.width/4.2, boundry.y+3.7*ReadyQrectangleHeight},subTitleTextFront,0,BLACK);
+    DrawTextEx(font,"Avg rotation time",(Vector2){boundry.x+boundry.width/8, boundry.y+3*boundry.height/4-hh/2},subTitleTextFront,0,BLACK);
+    DrawRectangle(boundry.x+boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh,WHITE);
+    DrawRectangleLinesEx((Rectangle){boundry.x+boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh},3, BLACK);
+    if(ganttRectanglesSize == ganttSize && ganttSize!=0){
+        char sss[20];
+        sprintf(sss,"%.2f",algoResult.metrics.averageRotation);
+        DrawTextEx(font,sss,(Vector2){boundry.x+boundry.width/8+ww/2-subTitleTextFront/2, boundry.y+3*boundry.height/4+hh/2-subTitleTextFront/2},subTitleTextFront,0,BLACK);
+    }else{
+        DrawTextEx(font,"",(Vector2){boundry.x+boundry.width/8+ww/2-subTitleTextFront/2, boundry.y+3*boundry.height/4+hh/2-subTitleTextFront/2},subTitleTextFront,0,BLACK);
+    }
+
+    DrawTextEx(font,"Avg waiting time",(Vector2){boundry.x+boundry.width-rectww-boundry.width/8, boundry.y+3*boundry.height/4-hh/2},subTitleTextFront,0,BLACK);
+    DrawRectangle(boundry.x+boundry.width-rectww-boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh,WHITE);
+    DrawRectangleLinesEx((Rectangle){boundry.x+boundry.width-rectww-boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh},3, BLACK);
+    if(ganttRectanglesSize == ganttSize && ganttSize!=0){
+        char sss[20];
+        sprintf(sss,"%.2f",algoResult.metrics.averageWaiting);
+        DrawTextEx(font,sss,(Vector2){boundry.x+boundry.width-rectww-boundry.width/8+ww/2-subTitleTextFront/2, boundry.y+3*boundry.height/4+hh/2-subTitleTextFront/2},subTitleTextFront,0,BLACK);
+    }else{
+        DrawTextEx(font,"",(Vector2){boundry.x+boundry.width-rectww-boundry.width/8+ww/2-subTitleTextFront/2, boundry.y+3*boundry.height/4+hh/2-subTitleTextFront/2},subTitleTextFront,0,BLACK);
+    }
+
+    // -------------------
 }
 void render_menu(Rectangle boundry){
     // printf("from menu\n");
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
     DrawTextEx(font,"Menu",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
     DrawTextEx(font,"Scheduling Algorithms",(Vector2){boundry.x+textPadding, boundry.y+3*textPadding},textSize,0,RED);
-    if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+18*textPadding,boundry.width - 20,30},"Start")) {
+    if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+18*textPadding,boundry.width - 20,30},"Start")&&!algosDropDown1EditMode) {
         if(!isStartButtonPressed) {
             ganttSize = 0;
             ganttRectanglesSize = 0;
@@ -119,7 +199,7 @@ void render_menu(Rectangle boundry){
             
         }
     }
-    if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+22*textPadding,boundry.width - 20,30},"Reset")) {
+    if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+22*textPadding,boundry.width - 20,30},"Reset")&&!algosDropDown1EditMode) {
         if(!isStartButtonPressed) {
             //generate processes
             generate_processes_file("config.conf","processes.txt",';');
@@ -138,11 +218,9 @@ void render_menu(Rectangle boundry){
     DrawTextEx(font,"Quantum",(Vector2){boundry.x+textPadding, boundry.y+8*textPadding},textSize,0,RED);
     GuiSpinner((Rectangle){ boundry.x+textPadding, boundry.y+12*textPadding, boundry.width - 20, 30 }, NULL, &quantumValue, 1, 10, quantumSpinnerEditMode);
 
-
-    
     GuiSetStyle(DROPDOWNBOX, TEXT_PADDING, 4);
     GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, TEXT_ALIGN_LEFT);
-    if(GuiDropdownBox((Rectangle){boundry.x+textPadding, boundry.y+6*textPadding,boundry.width-20,25}, "FIFO;multilevel;sjf;round_robin", &selectedAlgoIndex, algosDropDown1EditMode)) {
+    if(GuiDropdownBox((Rectangle){boundry.x+textPadding, boundry.y+6*textPadding,boundry.width-20,25}, algoOptions, &selectedAlgoIndex, algosDropDown1EditMode)) {
          algosDropDown1EditMode = !algosDropDown1EditMode;
          if(!algosDropDown1EditMode && !isStartButtonPressed) {
          }
@@ -195,8 +273,10 @@ int main(void){
     numberOfAlgo = get_nb_algorithms("../build/algorithms");
     algorithms = load_all_algorithms("../build/algorithms");
     for(int i=0;i<numberOfAlgo;i++) {
-        printf("%s\n", algorithms[i].name);
+        strcat(algoOptions,algorithms[i].name);
+        if(i<numberOfAlgo-1)strcat(algoOptions,";");
     }
+    printf("%s\n", algoOptions);
     while (!WindowShouldClose()){
         preview_screen();
         currFrame++;
