@@ -56,8 +56,89 @@ char* algosList;
 Color colors[10] = {RED, MAROON, GREEN, BLUE, ORANGE, GRAY, SKYBLUE, MAGENTA, GOLD, YELLOW};
 
 void render_job_pool(Rectangle boundry){
+
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
     DrawTextEx(font,"Job pool",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
+
+    const char* path = "./processes.txt";
+
+    Process* table_processes = getTableOfProcesses(path);  
+    // int number_processes = getNbProcesses(path);  SEGmentation fault when i click reset multiple times
+    int number_processes = 10; 
+    int padding_x = 50;
+    int padding_y_top = 60;
+    int padding_y_bottom = 20;
+    int padding_y = padding_y_bottom + padding_y_top;
+
+    float width = boundry.width - padding_x;
+    float height = boundry.height - padding_y;
+
+
+    float column_width =width/4;
+    float row_height = height/number_processes;
+
+    int current_y=0;
+    for(int current_x=0;current_x<4;current_x++){
+        Rectangle rect={
+            .x = current_x*column_width + padding_x/2,
+            .y = current_y*row_height + padding_y_top,
+            .width = column_width,
+            .height = row_height,
+        } ;
+        DrawRectangleRec(rect,LIGHTGRAY);
+        DrawRectangleLinesEx(rect, 2 , BLACK);
+        switch (current_x)
+            {
+            case 0:
+                DrawText("Name",rect.x + 10, rect.y+10, 20, DARKGRAY);
+                break;
+            case 1:
+                DrawText("AT" ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                break;
+            case 2:
+                DrawText("BT" ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                break;
+            case 3:
+                DrawText("T" ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                break;
+            
+            default:
+                break;
+            }
+
+    }
+    current_y++;
+
+    for(int current_x=0;current_y<10;current_y++ ){
+        for(int current_x=0;current_x<4;current_x++){
+            Rectangle rect={
+                .x = current_x*column_width + padding_x/2,
+                .y = current_y*row_height + padding_y_top,
+                .width = column_width,
+                .height = row_height,
+            } ;
+            DrawRectangleRec(rect,LIGHTGRAY);
+            DrawRectangleLinesEx(rect, 2 , BLACK);
+            switch (current_x)
+            {
+            case 0:
+                DrawText(table_processes[current_y].processName,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                break;
+            case 1:
+                DrawText(TextFormat("%d", table_processes[current_y].arrivalTime) ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                break;
+            case 2:
+                DrawText(TextFormat("%d", table_processes[current_y].runTime) ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                break;
+            case 3:
+                DrawText(TextFormat("%d", table_processes[current_y].priority) ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                break;
+            
+            default:
+                break;
+            }
+        } 
+    }
 }
 void render_gantt(Rectangle boundry){
     // printf("from gantt\n");
