@@ -37,7 +37,7 @@ int currFrame = 0;
 InstantResultNode* ganttRectangles = NULL;
 int ganttRectanglesSize = 0;
 int ganttSize = 0;
-char algoOptions[];
+char algoOptions[100];
 //----------------
 //algosdropdown
 int selectedAlgoIndex = 0;
@@ -155,6 +155,13 @@ void render_gantt(Rectangle boundry){
         ganttRectanglesSize++;
         ganttRectangles[ganttRectanglesSize-1]=currNode;
     }
+    BeginScissorMode(boundry.x,boundry.y,boundry.width,boundry.height);
+    static float panelScroll = 0.0;
+    static float panelVelocity = 0.0;
+    panelVelocity *= 0.9;
+    panelVelocity+=GetMouseWheelMove()*boundry.height;
+    panelScroll+=panelVelocity*GetFrameTime();
+    boundry.x+=panelScroll;
     for(int i=0;i<ganttRectanglesSize;i++){
         char name[50];
         snprintf(name, sizeof(name), ganttRectangles[i].processName);
@@ -165,12 +172,14 @@ void render_gantt(Rectangle boundry){
             c = colors[name[1] - '0'];
         }
         DrawRectangleRounded((Rectangle){
-            .x=boundry.x+textPadding+((boundry.width - 20 - ganttSize + 1) / ganttSize + 1)*i,
-            .y=boundry.y+50,
-            .width=(boundry.width - 20 - ganttSize + 1)/ganttSize,
-            .height=100,
+            .x=textPadding+boundry.x+(boundry.width*0.04+textPadding)*i,
+            .y=boundry.height*0.3+boundry.y,
+            .width=boundry.width*0.04,
+            .height=boundry.height*0.5,
         },0.1,20,c);
+        // saber add code here
     }
+    EndScissorMode();
 
 }
 void render_stats(Rectangle boundry){
