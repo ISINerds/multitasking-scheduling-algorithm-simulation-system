@@ -155,13 +155,19 @@ void render_gantt(Rectangle boundry){
         ganttRectanglesSize++;
         ganttRectangles[ganttRectanglesSize-1]=currNode;
     }
-    BeginScissorMode(boundry.x,boundry.y,boundry.width,boundry.height);
-    static float panelScroll = 0.0;
-    static float panelVelocity = 0.0;
-    panelVelocity *= 0.9;
-    panelVelocity+=GetMouseWheelMove()*boundry.height;
-    panelScroll+=panelVelocity*GetFrameTime();
-    boundry.x+=panelScroll;
+    // if(!isStartButtonPressed && !ganttRectanglesSize) {
+    //     boundry.x = padding;
+    // }
+    // BeginScissorMode(boundry.x,boundry.y,boundry.width,boundry.height);
+    // static float panelScroll = 0.0;
+    // static float panelVelocity = 0.0;
+    // panelVelocity *= 0.9;
+    // panelVelocity+=GetMouseWheelMove()*boundry.height;
+    // panelScroll+=panelVelocity*GetFrameTime();
+    // // printf("%d %d %f \n", boundry.x, boundry.y, panelScroll);
+    // // panelScroll = fmax(min(0, panelScroll), -((ganttRectanglesSize) * (boundry.width*0.04 + textPadding) - boundry.width + textPadding));
+    // // if(ganttRectanglesSize * (boundry.width*0.04 + textPadding) <= boundry.width) panelScroll = 0;
+    // boundry.x+=panelScroll;
     for(int i=0;i<ganttRectanglesSize;i++){
         char name[50];
         snprintf(name, sizeof(name), ganttRectangles[i].processName);
@@ -179,7 +185,7 @@ void render_gantt(Rectangle boundry){
         },0.1,20,c);
         // saber add code here
     }
-    EndScissorMode();
+    // EndScissorMode();
 
 }
 void render_stats(Rectangle boundry){
