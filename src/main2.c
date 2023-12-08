@@ -34,6 +34,7 @@ InstantResultNode currNode;
 int numberOfAlgo = 0;
 int started = 0;
 int currFrame = 0;
+float delay = 5;
 InstantResultNode* ganttRectangles = NULL;
 int ganttRectanglesSize = 0;
 int ganttSize = 0;
@@ -185,7 +186,7 @@ void render_gantt(Rectangle boundry){
         algoResult.gantt = NULL;
         printf("not pressed\n");
     }
-    if(isStartButtonPressed && algoResult.gantt && currFrame%5==0){
+    if(isStartButtonPressed && algoResult.gantt && currFrame%(int)delay==0){
         currNode = dequeue_gantt(algoResult.gantt);
         ganttRectanglesSize++;
         ganttRectangles[ganttRectanglesSize-1]=currNode;
@@ -304,7 +305,8 @@ void render_menu(Rectangle boundry){
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
     DrawTextEx(font,"Menu",(Vector2){boundry.x+textPadding, boundry.y+textPadding},1.2 * textSize,0,RED);
     // if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+18*textPadding,boundry.width - 20,30},"Start")&&!algosDropDown1EditMode) {
-    if(GuiButton((Rectangle){boundry.x + boundry.width * 0.1, boundry.y+boundry.height*0.64 ,boundry.width * 0.8, boundry.height * 0.11},"Start")&&!algosDropDown1EditMode) {
+    // if(GuiButton((Rectangle){boundry.x + boundry.width * 0.1, boundry.y+boundry.height*0.64 ,boundry.width * 0.4, boundry.height * 0.11},"Start")&&!algosDropDown1EditMode) {
+    if(GuiButton((Rectangle){boundry.x + boundry.width * 0.09, boundry.y+boundry.height*0.81 ,boundry.width * 0.4, boundry.height * 0.11},"Start")&&!algosDropDown1EditMode) {
         if(!isStartButtonPressed) {
             ganttSize = 0;
             ganttRectanglesSize = 0;
@@ -334,7 +336,7 @@ void render_menu(Rectangle boundry){
         }
     }
     // if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+22*textPadding,boundry.width - 20,30},"Reset")&&!algosDropDown1EditMode) {
-    if(GuiButton((Rectangle){boundry.x+boundry.width*0.1,boundry.y+boundry.height*0.76 ,boundry.width * 0.8, boundry.height * 0.11},"Reset")&&!algosDropDown1EditMode) {
+    if(GuiButton((Rectangle){boundry.x+boundry.width*0.11 + boundry.width * 0.4,boundry.y+boundry.height*0.81 ,boundry.width * 0.4, boundry.height * 0.11},"Reset")&&!algosDropDown1EditMode) {
         if(!isStartButtonPressed) {
             //generate processes
             generate_processes_file("config.conf","processes.txt",';');
@@ -354,7 +356,8 @@ void render_menu(Rectangle boundry){
     
     DrawTextEx(font,"Quantum",(Vector2){boundry.x+textPadding, boundry.y + boundry.height * 0.37}, 0.75 * textSize,0,RED);
     GuiSpinner((Rectangle){ boundry.x+boundry.width * 0.1, boundry.height * 0.37 + textSize, boundry.width * 0.8, boundry.height * 0.11 }, NULL, &quantumValue, 1, 10, quantumSpinnerEditMode);
-
+    DrawTextEx(font,"Delay",(Vector2){boundry.x+textPadding, boundry.y + boundry.height * 0.48 + textSize}, 0.75 * textSize,0,RED);
+    GuiSlider((Rectangle){ boundry.x + boundry.width * 0.1, boundry.y+boundry.height*0.48 + 2*textSize ,boundry.width * 0.8, boundry.height * 0.11 }, "", TextFormat("%2.2f", delay), &delay, 1, 60);
     GuiSetStyle(DROPDOWNBOX, TEXT_PADDING, 4);
     GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, TEXT_ALIGN_LEFT);
     // DrawTextEx(font,"Scheduling Algorithms",(Vector2){boundry.x+textPadding, boundry.y+3*textPadding},textSize,0,RED);
@@ -422,7 +425,7 @@ int main(void){
     while(!WindowShouldClose()) {
         preview_screen();
         currFrame++;
-        currFrame%=60;
+        currFrame%=(int)delay;
     }
     CloseWindow();
     return 0;
