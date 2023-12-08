@@ -215,6 +215,11 @@ void render_gantt(Rectangle boundry){
             .width=boundry.width*0.04,
             .height=boundry.height*0.5,
         },0.1,20,c);
+        char* timeChar[255];
+        sprintf(timeChar, "%d", ganttRectangles[i].t);
+        DrawText(timeChar,boundry.x+(boundry.width*0.04+textPadding)*i+5,boundry.height*0.3+boundry.y+10+boundry.height*0.5,10,BLACK);
+        DrawText(ganttRectangles[i].processName,textPadding+boundry.x+(boundry.width*0.04+textPadding)*i+10,boundry.height*0.3+boundry.y+10,0.02*boundry.width,WHITE);
+
         // saber add code here
     }
     EndScissorMode();
