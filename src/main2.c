@@ -198,8 +198,8 @@ void render_gantt(Rectangle boundry){
     panelVelocity+=GetMouseWheelMove()*boundry.height;
     panelScroll+=panelVelocity*GetFrameTime();
     // printf("%d %d %f \n", boundry.x, boundry.y, panelScroll);
-    panelScroll = fmax(min(0, panelScroll), -((ganttRectanglesSize) * (boundry.width*0.04 + textPadding) - boundry.width + textPadding));
-    if(ganttRectanglesSize * (boundry.width*0.04 + textPadding) <= boundry.width) panelScroll = 0;
+    panelScroll = fmax(min(0, panelScroll), -((ganttRectanglesSize) * (boundry.width*0.05 + textPadding) - boundry.width + textPadding));
+    if(ganttRectanglesSize * (boundry.width*0.05 + textPadding) <= boundry.width) panelScroll = 0;
     boundry.x+=panelScroll;
     for(int i=0;i<ganttRectanglesSize;i++){
         // printf("%d\n", name[1]-'0');
@@ -211,17 +211,22 @@ void render_gantt(Rectangle boundry){
             c = colors[name[1] - '0'];
         }
         DrawRectangleRounded((Rectangle){
-            .x=textPadding+boundry.x+(boundry.width*0.04+textPadding)*i,
+            .x=textPadding+boundry.x+(boundry.width*0.045+textPadding)*i,
             .y=boundry.height*0.3+boundry.y,
-            .width=boundry.width*0.04,
+            .width=boundry.width*0.05,
             .height=boundry.height*0.5,
         },0.1,20,c);
         char* timeChar[255];
         sprintf(timeChar, "%d", ganttRectangles[i].t);
-        DrawText(timeChar,boundry.x+(boundry.width*0.04+textPadding)*i+5,boundry.height*0.3+boundry.y+10+boundry.height*0.5,10,BLACK);
-        DrawText(ganttRectangles[i].processName,textPadding+boundry.x+(boundry.width*0.04+textPadding)*i+10,boundry.height*0.3+boundry.y+10,0.02*boundry.width,WHITE);
+        DrawText(timeChar,boundry.x+textPadding+(boundry.width*0.045+textPadding)*i+1, boundry.height*0.3+boundry.y+10+boundry.height*0.5, boundry.width*0.014, BLACK);
+        DrawText(ganttRectangles[i].processName,textPadding+boundry.x+(boundry.width*0.045+textPadding)*i+6, boundry.height*0.3+boundry.y+10, 0.025*boundry.width, WHITE);
+        if(ganttRectangles[i].quit == 1) {
+            DrawRectangle(textPadding+boundry.x+(boundry.width*0.045+textPadding)*i +boundry.width*0.045, boundry.height*0.2+boundry.y, 4,25, c);
 
-        // saber add code here
+            DrawTriangle((Vector2){ textPadding+boundry.x+(boundry.width*0.045+textPadding)*i +boundry.width*0.045 -10, boundry.height*0.2+boundry.y },
+                        (Vector2){ textPadding+boundry.x+(boundry.width*0.045+textPadding)*i +boundry.width*0.045 +12, boundry.height*0.2+boundry.y },
+                        (Vector2){ textPadding+boundry.x+(boundry.width*0.045+textPadding)*i + boundry.width*0.045, boundry.height*0.15+boundry.y }, c);
+        }
     }
     EndScissorMode();
 
