@@ -3,15 +3,17 @@
 #include "../includes/data_structures/priority_queue.h"
 #include "../includes/data_structures/queue.h"
 #include "../includes/utils/ProcessesTable.h"
+#include "../includes/utils/algo_result.h"
 
-
-void static_priority_scheduler(Process* processes, int processNumber) {
-    Queue* processesQ = create_queue_from_array(processes, processNumber);
+AlgoResult static_priority(Queue* processesQ, int processNumber, int quantum) {
     PriorityQueue *pq = init_priority_queue(processNumber, sizeof(Process), compare_process_priority);
 
     int currentTime = 0;
     int rotationTime = 0;
     int waitingTime = 0;
+
+    AlgoResult algoResult;
+    algoResult.gantt = create_gantt();
 
     while (!is_empty_q(processesQ) || !is_empty_pq(pq)) { 
         if(!is_empty_q(processesQ)){  
@@ -23,9 +25,27 @@ void static_priority_scheduler(Process* processes, int processNumber) {
 
         if (!is_empty_pq(pq)) {
             Process *currentProcess = (Process*) pop(pq); //the one with highest priority to be executed
-            printf("Executing %s at time %d ...\n", currentProcess->processName, currentTime);
+            
+            int finish =0 ; 
+            for (int t=currentTime; t<currentTime+currentProcess->runTime;t++){
+                ReadyQueueElements readyQueueElements = getPriorityQueueElements(pq);
+                char ** readyQueue = (char*) malloc(readyQueueElements.readyQueueSize * sizeof(char*));
+                for(int i=0;i<readyQueueElements.readyQueueSize;i++){
+                    readyQueue[i]= ((Process*)readyQueueElements.readyQueue[i])->processName;
+                }
+                if(t==currentTime+currentProcess->runTime-1){
+                    finish =1;
+                }
+                enqueue_gantt(
+                    algoResult.gantt, 
+                    t, 
+                    currentProcess->processName,
+                    finish,
+                    readyQueue,
+                    readyQueueElements.readyQueueSize
+                );
+            }
             currentTime += currentProcess->runTime;
-            printf("%s has terminated his job and left the CPU at time %d\n", currentProcess->processName, currentTime);
             // Calculate the rotation and waiting time
             int currentRotationTime= currentTime - currentProcess->arrivalTime;
             rotationTime+= currentRotationTime;
@@ -33,32 +53,42 @@ void static_priority_scheduler(Process* processes, int processNumber) {
             free(currentProcess);
         } else {
             currentTime++;
-            printf("idle from time %d to %d \n", currentTime-1, currentTime);
+            enqueue_gantt(
+                    algoResult.gantt, 
+                    currentTime-1, 
+                    NULL,
+                    0,
+                    NULL,
+                    0
+                );
         }
     }
-    printf("Average rotation time : %.2fs\n" , (float)rotationTime/processNumber);
-    printf("Average waiting time : %.2fs\n" , (float)waitingTime/processNumber);
+    float averageRotationTime = (float)rotationTime/processNumber;
+    float averageWaitingTime = (float)waitingTime/processNumber;
+    add_metrics(&algoResult, averageRotationTime, averageWaitingTime);
 
     free_priority_queue(pq);
+    return algoResult;
 }
 
 
-int main() {
+// int main() {
 
-    int processes_number = getNbProcesses("./src/processes.txt");  
-    Process* processes = getTableOfProcesses("./src/processes.txt");
+//     // int processes_number = getNbProcesses("./src/processes.txt");  
+//     // Process* processes = getTableOfProcesses("./src/processes.txt");
 
-    // Process processes[] = {
-    //     {"p1", 0, 5, 1},
-    //     {"p2", 2, 3, 1},
-    //     {"p3", 2, 2, 2},
-    //     {"p4", 3, 5, 3},
-    //     {"p5", 9, 2, 5},
-    //     {"p6", 10,1, 2}
-    // };
-    // int processes_number = sizeof(processes) / sizeof(processes[0]);
+//     Process processes[] = {
+//         {"p1", 0, 5, 1},
+//         {"p2", 2, 3, 1},
+//         {"p3", 2, 2, 2},
+//         {"p4", 3, 5, 3},
+//         {"p5", 9, 2, 5},
+//         {"p6", 10,1, 2}
+//     };
+//     int processes_number = sizeof(processes) / sizeof(processes[0]);
+//     Queue* processesQ = create_queue_from_array(processes, processes_number);
 
-    static_priority_scheduler(processes, processes_number);
+//     AlgoResult AlgoResult = static_priority(processesQ, processes_number, 0);
 
-    return 0;
-}
+//     return 0;
+// }
