@@ -161,13 +161,16 @@ void render_gantt(Rectangle boundry){
     panelVelocity *= 0.9;
     panelVelocity+=GetMouseWheelMove()*boundry.height;
     panelScroll+=panelVelocity*GetFrameTime();
+    // printf("%d %d %f \n", boundry.x, boundry.y, panelScroll);
+    panelScroll = fmax(min(0, panelScroll), -((ganttRectanglesSize) * (boundry.width*0.04 + textPadding) - boundry.width + textPadding));
+    if(ganttRectanglesSize * (boundry.width*0.04 + textPadding) <= boundry.width) panelScroll = 0;
     boundry.x+=panelScroll;
     for(int i=0;i<ganttRectanglesSize;i++){
         char name[50];
         snprintf(name, sizeof(name), ganttRectangles[i].processName);
         // printf("%d\n", name[1]-'0');
         Color c = BLACK;
-        if(name[1] - '0' != -46) {
+        if(name[1] - '0' >= 0) {
             // != null (idle state)
             c = colors[name[1] - '0'];
         }
