@@ -5,7 +5,7 @@
 #include "../includes/utils/ProcessesTable.h"
 #include "../includes/utils/algo_result.h"
 
-AlgoResult static_priority(Queue* processesQ, int processNumber, int quantum) {
+AlgoResult nonpreemptive_priority(Queue* processesQ, int processNumber, int quantum) {
     PriorityQueue *pq = init_priority_queue(processNumber, sizeof(Process), compare_process_priority);
 
     int currentTime = 0;
@@ -88,7 +88,7 @@ AlgoResult static_priority(Queue* processesQ, int processNumber, int quantum) {
 //     int processes_number = sizeof(processes) / sizeof(processes[0]);
 //     Queue* processesQ = create_queue_from_array(processes, processes_number);
 
-//     AlgoResult AlgoResult = static_priority(processesQ, processes_number, 0);
+//     AlgoResult AlgoResult = nonpreemptive_priority(processesQ, processes_number, 0);
 
 //     return 0;
 // }
