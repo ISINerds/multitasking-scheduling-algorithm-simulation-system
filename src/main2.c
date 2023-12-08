@@ -34,6 +34,7 @@ InstantResultNode currNode;
 int numberOfAlgo = 0;
 int started = 0;
 int currFrame = 0;
+float delay = 5;
 InstantResultNode* ganttRectangles = NULL;
 int ganttRectanglesSize = 0;
 int ganttSize = 0;
@@ -185,7 +186,7 @@ void render_gantt(Rectangle boundry){
         algoResult.gantt = NULL;
         printf("not pressed\n");
     }
-    if(isStartButtonPressed && algoResult.gantt && currFrame%5==0){
+    if(isStartButtonPressed && algoResult.gantt && currFrame%(int)delay==0){
         currNode = dequeue_gantt(algoResult.gantt);
         ganttRectanglesSize++;
         ganttRectangles[ganttRectanglesSize-1]=currNode;
@@ -201,12 +202,12 @@ void render_gantt(Rectangle boundry){
     if(ganttRectanglesSize * (boundry.width*0.04 + textPadding) <= boundry.width) panelScroll = 0;
     boundry.x+=panelScroll;
     for(int i=0;i<ganttRectanglesSize;i++){
-        char name[50];
-        snprintf(name, sizeof(name), ganttRectangles[i].processName);
         // printf("%d\n", name[1]-'0');
         Color c = BLACK;
-        if(name[1] - '0' >= 0) {
+        if(ganttRectangles[i].processName != NULL) {
             // != null (idle state)
+            char name[50];
+            snprintf(name, sizeof(name), ganttRectangles[i].processName);
             c = colors[name[1] - '0'];
         }
         DrawRectangleRounded((Rectangle){
@@ -302,9 +303,10 @@ void render_stats(Rectangle boundry){
 }
 void render_menu(Rectangle boundry){
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
-    DrawTextEx(font,"Menu",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
-    DrawTextEx(font,"Scheduling Algorithms",(Vector2){boundry.x+textPadding, boundry.y+3*textPadding},textSize,0,RED);
-    if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+18*textPadding,boundry.width - 20,30},"Start")&&!algosDropDown1EditMode) {
+    DrawTextEx(font,"Menu",(Vector2){boundry.x+textPadding, boundry.y+textPadding},1.2 * textSize,0,RED);
+    // if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+18*textPadding,boundry.width - 20,30},"Start")&&!algosDropDown1EditMode) {
+    // if(GuiButton((Rectangle){boundry.x + boundry.width * 0.1, boundry.y+boundry.height*0.64 ,boundry.width * 0.4, boundry.height * 0.11},"Start")&&!algosDropDown1EditMode) {
+    if(GuiButton((Rectangle){boundry.x + boundry.width * 0.09, boundry.y+boundry.height*0.81 ,boundry.width * 0.4, boundry.height * 0.11},"Start")&&!algosDropDown1EditMode) {
         if(!isStartButtonPressed) {
             ganttSize = 0;
             ganttRectanglesSize = 0;
@@ -333,7 +335,8 @@ void render_menu(Rectangle boundry){
             
         }
     }
-    if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+22*textPadding,boundry.width - 20,30},"Reset")&&!algosDropDown1EditMode) {
+    // if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+22*textPadding,boundry.width - 20,30},"Reset")&&!algosDropDown1EditMode) {
+    if(GuiButton((Rectangle){boundry.x+boundry.width*0.11 + boundry.width * 0.4,boundry.y+boundry.height*0.81 ,boundry.width * 0.4, boundry.height * 0.11},"Reset")&&!algosDropDown1EditMode) {
         if(!isStartButtonPressed) {
             //generate processes
             generate_processes_file("config.conf","processes.txt",';');
@@ -351,12 +354,15 @@ void render_menu(Rectangle boundry){
         }
     }
     
-    DrawTextEx(font,"Quantum",(Vector2){boundry.x+textPadding, boundry.y+8*textPadding},textSize,0,RED);
-    GuiSpinner((Rectangle){ boundry.x+textPadding, boundry.y+12*textPadding, boundry.width - 20, 30 }, NULL, &quantumValue, 1, 10, quantumSpinnerEditMode);
-
+    DrawTextEx(font,"Quantum",(Vector2){boundry.x+textPadding, boundry.y + boundry.height * 0.37}, 0.75 * textSize,0,RED);
+    GuiSpinner((Rectangle){ boundry.x+boundry.width * 0.1, boundry.height * 0.37 + textSize, boundry.width * 0.8, boundry.height * 0.11 }, NULL, &quantumValue, 1, 10, quantumSpinnerEditMode);
+    DrawTextEx(font,"Delay",(Vector2){boundry.x+textPadding, boundry.y + boundry.height * 0.48 + textSize}, 0.75 * textSize,0,RED);
+    GuiSlider((Rectangle){ boundry.x + boundry.width * 0.1, boundry.y+boundry.height*0.48 + 2*textSize ,boundry.width * 0.8, boundry.height * 0.11 }, "", TextFormat("%2.2f", delay), &delay, 1, 60);
     GuiSetStyle(DROPDOWNBOX, TEXT_PADDING, 4);
     GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, TEXT_ALIGN_LEFT);
-    if(GuiDropdownBox((Rectangle){boundry.x+textPadding, boundry.y+6*textPadding,boundry.width-20,25}, algoOptions, &selectedAlgoIndex, algosDropDown1EditMode)) {
+    // DrawTextEx(font,"Scheduling Algorithms",(Vector2){boundry.x+textPadding, boundry.y+3*textPadding},textSize,0,RED);
+    DrawTextEx(font,"Scheduling Algorithms",(Vector2){boundry.x+textPadding, boundry.height * 0.26 - textSize}, 0.75 * textSize,0,RED);
+    if(GuiDropdownBox((Rectangle){boundry.x+boundry.width * 0.1, boundry.height * 0.26, boundry.width * 0.8, boundry.height * 0.11}, algoOptions, &selectedAlgoIndex, algosDropDown1EditMode)) {
          algosDropDown1EditMode = !algosDropDown1EditMode;
          if(!algosDropDown1EditMode && !isStartButtonPressed) {
          }
@@ -374,13 +380,6 @@ void preview_screen(void){
         .height = 2*(h-gap)/3,
     };
     render_job_pool(jobPoolRect);
-    Rectangle menuRect = {
-        .x = 2*gap+padding+2*(w-2*padding-2*gap)/3,
-        .y = 0+padding,
-        .width = (w-2*padding-2*gap)/3,
-        .height = 2*(h-gap)/3,
-    };
-    render_menu(menuRect);
     Rectangle statsRect = {
         .x = gap+padding+(w-2*padding-2*gap)/3,
         .y = 0+padding,
@@ -395,6 +394,13 @@ void preview_screen(void){
         .height = (h-gap)/3 - padding,
     };
     render_gantt(ganttRect);
+    Rectangle menuRect = {
+        .x = 2*gap+padding+2*(w-2*padding-2*gap)/3,
+        .y = 0+padding,
+        .width = (w-2*padding-2*gap)/3,
+        .height = 2*(h-gap)/3,
+    };
+    render_menu(menuRect);
     EndDrawing();
 
 }
@@ -419,7 +425,7 @@ int main(void){
     while(!WindowShouldClose()) {
         preview_screen();
         currFrame++;
-        currFrame%=60;
+        currFrame%=(int)delay;
     }
     CloseWindow();
     return 0;
