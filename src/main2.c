@@ -61,28 +61,60 @@ void render_job_pool(Rectangle boundry){
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
     DrawTextEx(font,"Job pool",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
 
-    // const char* path = "./processes.txt";
-    // int number_processes = getNbProcesses(path);  //SEGmentation fault when i click reset multiple times
-    // printf("here %d\n", number_processes);
-    // Process* table_processes = getTableOfProcesses(path);  
-    // int number_processes = 10; 
-    int padding_x = 50;
+
+    int padding_x = 20;
     int padding_y_top = 60;
     int padding_y_bottom = 20;
     int padding_y = padding_y_bottom + padding_y_top;
 
-    float width = boundry.width - padding_x;
+    float width = boundry.width - 2*padding_x;
     float height = boundry.height - padding_y;
 
+    BeginScissorMode(boundry.x+padding_x, boundry.y+padding_y_top, width ,height);
+    
+    static float panelScrollX = 20.0;
+    static float panelVelocityX = 0.0;
+    panelVelocityX *= 0.9;
+    panelVelocityX+=GetMouseWheelMoveV().x * boundry.width;
+    panelScrollX+=panelVelocityX * GetFrameTime();
+    float x_scroll = boundry.x+panelScrollX;
 
-    float column_width =width/4;
-    float row_height = height/(processes_number+1);
+    // Horizantal Scroll 
+    static float panelScrollY = 0.0;
+    static float panelVelocityY = 0.0;
+    panelVelocityY *= 0.9;
+    panelVelocityY+=GetMouseWheelMoveV().y * boundry.height;
+    panelScrollY+=panelVelocityY*GetFrameTime();
+    float y_scroll = boundry.y + panelScrollY;
+
+
+    float column_width =140;
+    float row_height = 70;
+
+    // To generalize values
+    if(x_scroll<-500){
+        panelScrollX =  padding_x;
+        // printf("hey1\n");
+    }
+    if(x_scroll>50){
+        panelScrollX = padding_x;
+    }
+    if(y_scroll>padding_y){
+        panelScrollY =  0;
+        // printf("hey3\n");
+    }
+    if(y_scroll<-row_height*processes_number){
+        // printf("hey4\n");
+        panelScrollY = 0;
+    }
+    // To generalize values
+
 
     int current_y=0;
     for(int current_x=0;current_x<4;current_x++){
         Rectangle rect={
-            .x = current_x*column_width + padding_x/2,
-            .y = current_y*row_height + padding_y_top,
+            .x = current_x*column_width + padding_x/2 + x_scroll,
+            .y = current_y*row_height + padding_y_top + y_scroll,
             .width = column_width,
             .height = row_height,
         } ;
@@ -91,16 +123,16 @@ void render_job_pool(Rectangle boundry){
         switch (current_x)
             {
             case 0:
-                DrawText("Name",rect.x + 10, rect.y+10, 20, DARKGRAY);
+                DrawText("Process",rect.x + 10 , rect.y + 10 , 20, DARKGRAY);
                 break;
             case 1:
-                DrawText("AT" ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                DrawText("Arrival Time" ,rect.x + 10, rect.y + 10, 20, DARKGRAY);
                 break;
             case 2:
-                DrawText("BT" ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                DrawText("Burst Time" ,rect.x + 10 , rect.y + 10, 20, DARKGRAY);
                 break;
             case 3:
-                DrawText("T" ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                DrawText("Priority" ,rect.x + 10 , rect.y + 10, 20, DARKGRAY);
                 break;
             
             default:
@@ -110,11 +142,11 @@ void render_job_pool(Rectangle boundry){
     }
     current_y++;
 
-    for(int current_y=0;current_y<processes_number;current_y++ ){
+    for(;current_y<processes_number+1;current_y++ ){
         for(int current_x=0;current_x<4;current_x++){
             Rectangle rect={
-                .x = current_x*column_width + padding_x/2,
-                .y = (current_y+1)*row_height + padding_y_top,
+                .x = current_x*column_width + padding_x/2 + x_scroll,
+                .y = (current_y)*row_height + padding_y_top + y_scroll,
                 .width = column_width,
                 .height = row_height,
             } ;
@@ -123,16 +155,16 @@ void render_job_pool(Rectangle boundry){
             switch (current_x)
             {
             case 0:
-                DrawText(processes[current_y].processName,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                DrawText(processes[current_y-1].processName,rect.x + 10, rect.y + 10, 20, DARKGRAY);
                 break;
             case 1:
-                DrawText(TextFormat("%d", processes[current_y].arrivalTime) ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                DrawText(TextFormat("%d", processes[current_y-1].arrivalTime) ,rect.x + 10, rect.y + 10, 20, DARKGRAY);
                 break;
             case 2:
-                DrawText(TextFormat("%d", processes[current_y].runTime) ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                DrawText(TextFormat("%d", processes[current_y-1].runTime) ,rect.x + 10 , rect.y + 10, 20, DARKGRAY);
                 break;
             case 3:
-                DrawText(TextFormat("%d", processes[current_y].priority) ,rect.x + 10, rect.y+10, 20, DARKGRAY);
+                DrawText(TextFormat("%d", processes[current_y-1].priority) ,rect.x + 10, rect.y + 10, 20, DARKGRAY);
                 break;
             
             default:
@@ -140,6 +172,9 @@ void render_job_pool(Rectangle boundry){
             }
         } 
     }
+        // printf("**x= %d ** y= %d  ** w=%d  ** h=%d\n",boundry.x,boundry.y,boundry.width,boundry.height);
+
+    EndScissorMode();
 }
 void render_gantt(Rectangle boundry){
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
@@ -161,13 +196,16 @@ void render_gantt(Rectangle boundry){
     panelVelocity *= 0.9;
     panelVelocity+=GetMouseWheelMove()*boundry.height;
     panelScroll+=panelVelocity*GetFrameTime();
+    // printf("%d %d %f \n", boundry.x, boundry.y, panelScroll);
+    panelScroll = fmax(min(0, panelScroll), -((ganttRectanglesSize) * (boundry.width*0.04 + textPadding) - boundry.width + textPadding));
+    if(ganttRectanglesSize * (boundry.width*0.04 + textPadding) <= boundry.width) panelScroll = 0;
     boundry.x+=panelScroll;
     for(int i=0;i<ganttRectanglesSize;i++){
         char name[50];
         snprintf(name, sizeof(name), ganttRectangles[i].processName);
         // printf("%d\n", name[1]-'0');
         Color c = BLACK;
-        if(name[1] - '0' != -46) {
+        if(name[1] - '0' >= 0) {
             // != null (idle state)
             c = colors[name[1] - '0'];
         }
