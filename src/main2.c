@@ -16,13 +16,7 @@
 #define backgroundColor (Color){255,255,255,1}
 Font font;
 
-typedef struct {
-    int x;
-    int y;
-    int width;
-    int height;
-    Color color;
-} RectangleData;
+
 int ReadyQrectangleWidth = 70;
 int ReadyQrectangleHeight = 50;
 
@@ -55,13 +49,10 @@ int isStartButtonPressed = false;
 //TODO return the names of all algorithms like this "algo1;algo2;algo3;algo4"
 char* algosList;
 
-Color colors[10] = {RED, MAROON, GREEN, BLUE, ORANGE, GRAY, SKYBLUE, MAGENTA, GOLD, YELLOW};
-
 void render_job_pool(Rectangle boundry){
 
     DrawRectangleRounded(boundry,borderRadius,20,containerColor);
     DrawTextEx(font,"Job pool",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
-
 
     int padding_x = 20;
     int padding_y_top = 60;
@@ -75,38 +66,49 @@ void render_job_pool(Rectangle boundry){
     
     static float panelScrollX = 20.0;
     static float panelVelocityX = 0.0;
-    panelVelocityX *= 0.9;
-    panelVelocityX+=GetMouseWheelMoveV().x * boundry.width;
-    panelScrollX+=panelVelocityX * GetFrameTime();
+    if(CheckCollisionPointRec(GetMousePosition(),boundry)){
+        panelVelocityX *= 0.9;
+        panelVelocityX+=GetMouseWheelMoveV().x * boundry.width;
+        panelScrollX+=panelVelocityX * GetFrameTime();
+    }
     float x_scroll = boundry.x+panelScrollX;
 
     // Horizantal Scroll 
     static float panelScrollY = 0.0;
     static float panelVelocityY = 0.0;
-    panelVelocityY *= 0.9;
-    panelVelocityY+=GetMouseWheelMoveV().y * boundry.height;
-    panelScrollY+=panelVelocityY*GetFrameTime();
+    if(CheckCollisionPointRec(GetMousePosition(),boundry)){
+        panelVelocityY *= 0.9;
+        panelVelocityY+=GetMouseWheelMoveV().y * boundry.height;
+        panelScrollY+=panelVelocityY*GetFrameTime();
+    }
     float y_scroll = boundry.y + panelScrollY;
 
 
-    float column_width =140;
+    float column_width =100;
     float row_height = 70;
 
     // To generalize values
-    if(x_scroll<-500){
-        panelScrollX =  padding_x;
+    if(x_scroll<=-column_width*(4-boundry.width/column_width+0.5)){
+        panelScrollX =  -column_width*(4-boundry.width/column_width+0.5) - 5;
+        x_scroll = -column_width*(4-boundry.width/column_width+0.5) - 5;
         // printf("hey1\n");
     }
-    if(x_scroll>50){
+    if(x_scroll>=padding_x){
         panelScrollX = padding_x;
+        x_scroll = padding_x;
     }
-    if(y_scroll>padding_y){
+    if(y_scroll>=5){
+        // printf("%f\n",y_scroll);
+        // fflush(stdout);
         panelScrollY =  0;
+        y_scroll = 5;
         // printf("hey3\n");
     }
-    if(y_scroll<-row_height*processes_number){
+    if(y_scroll<=-row_height*(processes_number-boundry.height/row_height+2.5)){
         // printf("hey4\n");
-        panelScrollY = 0;
+        y_scroll = -row_height*(processes_number-boundry.height/row_height+2.5);
+        // fflush(stdout);
+        panelScrollY = -row_height*(processes_number-boundry.height/row_height+2.5)-5;
     }
     // To generalize values
 
@@ -127,10 +129,10 @@ void render_job_pool(Rectangle boundry){
                 DrawText("Process",rect.x + 10 , rect.y + 10 , 20, DARKGRAY);
                 break;
             case 1:
-                DrawText("Arrival Time" ,rect.x + 10, rect.y + 10, 20, DARKGRAY);
+                DrawText("Arrival\n\nTime" ,rect.x + 10, rect.y + 10, 20, DARKGRAY);
                 break;
             case 2:
-                DrawText("Burst Time" ,rect.x + 10 , rect.y + 10, 20, DARKGRAY);
+                DrawText("Burst\n\nTime" ,rect.x + 10 , rect.y + 10, 20, DARKGRAY);
                 break;
             case 3:
                 DrawText("Priority" ,rect.x + 10 , rect.y + 10, 20, DARKGRAY);
@@ -194,9 +196,11 @@ void render_gantt(Rectangle boundry){
     BeginScissorMode(boundry.x,boundry.y,boundry.width,boundry.height);
     static float panelScroll = 0.0;
     static float panelVelocity = 0.0;
-    panelVelocity *= 0.9;
-    panelVelocity+=GetMouseWheelMove()*boundry.height;
-    panelScroll+=panelVelocity*GetFrameTime();
+    if(CheckCollisionPointRec(GetMousePosition(),boundry)){
+        panelVelocity *= 0.9;
+        panelVelocity+=GetMouseWheelMove()*boundry.height;
+        panelScroll+=panelVelocity*GetFrameTime();
+    }
     // printf("%d %d %f \n", boundry.x, boundry.y, panelScroll);
     panelScroll = fmax(min(0, panelScroll), -((ganttRectanglesSize) * (boundry.width*0.05 + textPadding) - boundry.width + textPadding));
     if(ganttRectanglesSize * (boundry.width*0.05 + textPadding) <= boundry.width) panelScroll = 0;
@@ -206,9 +210,10 @@ void render_gantt(Rectangle boundry){
         Color c = BLACK;
         if(ganttRectangles[i].processName != NULL) {
             // != null (idle state)
-            char name[50];
-            snprintf(name, sizeof(name), ganttRectangles[i].processName);
-            c = colors[name[1] - '0'];
+            int processNumber;
+            sscanf(ganttRectangles[i].processName,"%*[^0-9]%d",&processNumber);
+            
+            c = ColorFromHSV(360/processes_number*processNumber,1,0.5);
         }
         DrawRectangleRounded((Rectangle){
             .x=textPadding+boundry.x+(boundry.width*0.045+textPadding)*i,
@@ -243,22 +248,21 @@ void render_stats(Rectangle boundry){
     DrawTextEx(font,"Stats",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
 
     // ----------------
-    DrawTextEx(font,"Current job",(Vector2){boundry.x+textPadding, boundry.y+boundry.height/6},subTitleTextFront+subTitleTextFront*0.2,0,BLACK);
+    DrawTextEx(font,"Ready queue",(Vector2){boundry.x+textPadding, boundry.y+boundry.height/6},subTitleTextFront+subTitleTextFront*0.2,0,BLACK);
     if(ganttSize!=0){
         if(currNode.readyQueueSize!=0){
+            int readyQueueRectSize = boundry.width*0.15;
             for(int i=0;i<min(4,currNode.readyQueueSize);i++){
-                Color c = BLACK;
-                if(currNode.readyQueue[i][1] - '0' != -46) {
-                    // != null (idle state)
-                    c = colors[currNode.readyQueue[i][1] - '0'];
-                }
+                int processNumber;
+                sscanf(currNode.readyQueue[i],"%*[^0-9]%d",&processNumber);
+                Color c = ColorFromHSV(360/processes_number*processNumber,1,0.5);
                 DrawRectangleRounded((Rectangle){
                     .x=boundry.x+textPadding+(boundry.width*.2)*i,
                     .y=boundry.y+boundry.height/4,
-                    .width=50,
+                    .width=readyQueueRectSize,
                     .height=boundry.height/6,
                 },0.1,20,c);
-                DrawTextEx(font,currNode.readyQueue[i],(Vector2){boundry.x+textPadding+(boundry.width*.2)*i+25, boundry.y+boundry.height/4+boundry.height/12},subTitleTextFront,0,BLACK);
+                DrawTextEx(font,currNode.readyQueue[i],(Vector2){boundry.x+textPadding+(boundry.width*.2)*i+readyQueueRectSize*.3, boundry.y+boundry.height/4+boundry.height/40},subTitleTextFront,0,WHITE);
             }
         }
     }
@@ -361,7 +365,7 @@ void render_menu(Rectangle boundry){
     
     DrawTextEx(font,"Quantum",(Vector2){boundry.x+textPadding, boundry.y + boundry.height * 0.37}, 0.75 * textSize,0,RED);
     GuiSpinner((Rectangle){ boundry.x+boundry.width * 0.1, boundry.height * 0.37 + textSize, boundry.width * 0.8, boundry.height * 0.11 }, NULL, &quantumValue, 1, 10, quantumSpinnerEditMode);
-    DrawTextEx(font,"Delay",(Vector2){boundry.x+textPadding, boundry.y + boundry.height * 0.48 + textSize}, 0.75 * textSize,0,RED);
+    DrawTextEx(font,"Simulation Latency",(Vector2){boundry.x+textPadding, boundry.y + boundry.height * 0.48 + textSize}, 0.75 * textSize,0,RED);
     GuiSlider((Rectangle){ boundry.x + boundry.width * 0.1, boundry.y+boundry.height*0.48 + 2*textSize ,boundry.width * 0.8, boundry.height * 0.11 }, "", TextFormat("%2.2f", delay), &delay, 1, 60);
     GuiSetStyle(DROPDOWNBOX, TEXT_PADDING, 4);
     GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, TEXT_ALIGN_LEFT);
