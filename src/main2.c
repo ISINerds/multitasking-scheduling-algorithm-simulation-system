@@ -202,7 +202,7 @@ void render_gantt(Rectangle boundry){
         panelScroll+=panelVelocity*GetFrameTime();
     }
     // printf("%d %d %f \n", boundry.x, boundry.y, panelScroll);
-    panelScroll = fmax(min(0, panelScroll), -((ganttRectanglesSize) * (boundry.width*0.05 + textPadding) - boundry.width + textPadding));
+    panelScroll = fmax(min(0, panelScroll), -((ganttRectanglesSize) * (boundry.width*0.045 + textPadding) - boundry.width + textPadding));
     if(ganttRectanglesSize * (boundry.width*0.05 + textPadding) <= boundry.width) panelScroll = 0;
     boundry.x+=panelScroll;
     for(int i=0;i<ganttRectanglesSize;i++){
@@ -226,7 +226,7 @@ void render_gantt(Rectangle boundry){
         DrawText(timeChar,boundry.x+textPadding+(boundry.width*0.045+textPadding)*i+1, boundry.height*0.3+boundry.y+10+boundry.height*0.5, boundry.width*0.014, BLACK);
         DrawText(ganttRectangles[i].processName,textPadding+boundry.x+(boundry.width*0.045+textPadding)*i+6, boundry.height*0.3+boundry.y+10, 0.025*boundry.width, WHITE);
         if(ganttRectangles[i].quit == 1) {
-            DrawRectangle(textPadding+boundry.x+(boundry.width*0.045+textPadding)*i +boundry.width*0.045, boundry.height*0.2+boundry.y, 4,25, c);
+            DrawRectangle(textPadding+boundry.x+(boundry.width*0.045+textPadding)*i +boundry.width*0.045, boundry.height*0.2+boundry.y, 4,boundry.height*0.2, c);
 
             DrawTriangle((Vector2){ textPadding+boundry.x+(boundry.width*0.045+textPadding)*i +boundry.width*0.045 -10, boundry.height*0.2+boundry.y },
                         (Vector2){ textPadding+boundry.x+(boundry.width*0.045+textPadding)*i +boundry.width*0.045 +12, boundry.height*0.2+boundry.y },
