@@ -24,8 +24,8 @@ AlgoResult SRT (Queue * Q,int sizeOfArray, int quantum) {
         if (!is_empty_q(Q)) {
             Process firstP = {0} ;
             while (!is_empty_q(Q)&& Q->front->data.arrivalTime<=current_time) {
-                allRunTimes += firstP.runTime;
                 firstP=dequeue(Q);
+                allRunTimes += firstP.runTime;
                 push(PQ, &firstP);
                 // Process firstP = (Q->front)->data ;
             }
