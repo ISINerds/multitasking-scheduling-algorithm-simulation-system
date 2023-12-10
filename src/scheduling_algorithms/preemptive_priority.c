@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../includes/data_structures/priority_queue.h"
-// #include "../includes/data_structures/queue.h"
+#include "../includes/data_structures/queue.h"
 #include "../includes/utils/ProcessesTable.h"
 #include "../includes/utils/algo_result.h"
 
@@ -20,9 +20,9 @@ int compare_process_priority_multilevel(const void *a, const void *b) {
     }else if((((MultitaskProcess*)a)->process).priority > (((MultitaskProcess*)b)->process).priority){
         return 1;
     }else{
-        if(((MultitaskProcess*)a)->readyFrom > ((MultitaskProcess*)b)->readyFrom){
+        if((((MultitaskProcess*)a)->process).arrivalTime > (((MultitaskProcess*)b)->process).arrivalTime){
             return -1;
-        }else if(((MultitaskProcess*)a)->readyFrom < ((MultitaskProcess*)b)->readyFrom){
+        }else if((((MultitaskProcess*)a)->process).arrivalTime < (((MultitaskProcess*)b)->process).arrivalTime){
             return 1;
         }else{
             if(((MultitaskProcess*)a)->new > ((MultitaskProcess*)b)->new){
