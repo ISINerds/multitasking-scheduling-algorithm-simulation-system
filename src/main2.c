@@ -2,6 +2,7 @@
 #include "./includes/utils/processes_generator.h"
 #include "./includes/utils/ProcessesTable.h"
 #include "./includes/utils/algo_result.h"
+#include "./includes/utils/logs.h"
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define RAYGUI_IMPLEMENTATION
 #include "../build_raylib/_deps/raygui-src/src/raygui.h"
@@ -10,7 +11,7 @@
 
 #define textPadding 10
 #define borderRadius 0.1
-#define gap 5
+#define gap 10
 #define padding 5
 #define textSize 30
 #define containerColor (Color){ 220, 220, 220, 255 }
@@ -114,11 +115,11 @@ void render_job_pool(Rectangle boundry){
         y_scroll = 5;
         // printf("hey3\n");
     }
-    if(y_scroll<=-row_height*(processes_number-boundry.height/row_height+2.5)){
+    if(y_scroll<=-row_height*1.1*(processes_number-boundry.height/(row_height*1.1)+2.5)){
         // printf("hey4\n");
-        y_scroll = -row_height*(processes_number-boundry.height/row_height+2.5);
+        y_scroll = -row_height*1.1*(processes_number-boundry.height/(row_height*1.1)+2.5);
         // fflush(stdout);
-        panelScrollY = -row_height*(processes_number-boundry.height/row_height+2.5)-5;
+        panelScrollY = -row_height*1.1*(processes_number-boundry.height/(row_height*1.1)+2.5)-5;
     }
     // To generalize values
 
@@ -126,8 +127,8 @@ void render_job_pool(Rectangle boundry){
     int current_y=0;
     for(int current_x=0;current_x<4;current_x++){
         Rectangle rect = {
-            .x = current_x*column_width + padding_x/2 + x_scroll,
-            .y = current_y*row_height + padding_y_top + y_scroll,
+            .x = current_x*column_width*1.1 + padding_x/2 + x_scroll,
+            .y = current_y*row_height*1.1 + padding_y_top + y_scroll,
             .width = column_width,
             .height = row_height,
         };
@@ -160,8 +161,8 @@ void render_job_pool(Rectangle boundry){
     for(;current_y<processes_number+1;current_y++ ){
         for(int current_x=0;current_x<4;current_x++){
             Rectangle rect={
-                .x = current_x*column_width + padding_x/2 + x_scroll,
-                .y = (current_y)*row_height + padding_y_top + y_scroll,
+                .x = current_x*column_width*1.1 + padding_x/2 + x_scroll,
+                .y = (current_y)*row_height*1.1 + padding_y_top + y_scroll,
                 .width = column_width,
                 .height = row_height,
             } ;
@@ -206,6 +207,8 @@ void render_gantt(Rectangle boundry){
         currNode = dequeue_gantt(algoResult.gantt);
         ganttRectanglesSize++;
         ganttRectangles[ganttRectanglesSize-1]=currNode;
+        execution_log(currNode);
+        if(ganttRectanglesSize == ganttSize)metrics_log(algoResult.metrics);
     }
     BeginScissorMode(boundry.x,boundry.y,boundry.width,boundry.height);
     static float panelScroll = 0.0;
@@ -229,16 +232,26 @@ void render_gantt(Rectangle boundry){
             
             c = ColorFromHSV(360/processes_number*processNumber,1,0.5);
         }
-        DrawRectangleRounded((Rectangle){
-            .x=textPadding+boundry.x+(boundry.width*0.05+textPadding)*i,
-            .y=boundry.height*0.3+boundry.y,
-            .width=boundry.width*0.05,
-            .height=boundry.height*0.5,
-        },0.1,20,c);
+        if(ganttRectangles[i].processName != NULL){
+            DrawRectangleRounded((Rectangle){
+                .x=textPadding+boundry.x+(boundry.width*0.05+textPadding)*i,
+                .y=boundry.height*0.3+boundry.y,
+                .width=boundry.width*0.05,
+                .height=boundry.height*0.5,
+            },0.1,20,c);
+            DrawText(ganttRectangles[i].processName,textPadding+boundry.x+(boundry.width*0.05+textPadding)*i+6, boundry.height*0.3+boundry.y+10, 0.025*boundry.width, WHITE);
+        }else{
+            DrawRectangleRoundedLines((Rectangle){
+                .x=textPadding+boundry.x+(boundry.width*0.05+textPadding)*i,
+                .y=boundry.height*0.3+boundry.y,
+                .width=boundry.width*0.05,
+                .height=boundry.height*0.5,
+            },borderRadius,2,2,ColorFromHSV(120,1,1));
+            DrawText("idle",textPadding+boundry.x+(boundry.width*0.05+textPadding)*i+6, boundry.height*0.3+boundry.y+10, 0.025*boundry.width, WHITE);
+        }
         char* timeChar[255];
         sprintf(timeChar, "%d", ganttRectangles[i].t);
-        DrawText(timeChar,boundry.x+textPadding+(boundry.width*0.05+textPadding)*i+1, boundry.height*0.3+boundry.y+10+boundry.height*0.5, boundry.width*0.014, WHITE);
-        DrawText(ganttRectangles[i].processName,textPadding+boundry.x+(boundry.width*0.05+textPadding)*i+6, boundry.height*0.3+boundry.y+10, 0.025*boundry.width, WHITE);
+        DrawText(timeChar,boundry.x+textPadding+(boundry.width*0.05+textPadding)*i+1, boundry.height*0.3+boundry.y+10+boundry.height*0.5, boundry.width*0.014, WHITE);        
         if(ganttRectangles[i].quit == 1) {
             DrawRectangle(textPadding+boundry.x+(boundry.width*0.05+textPadding)*i +boundry.width*0.05 - 4, boundry.height*0.2+boundry.y, 4,boundry.height*0.2, c);
 
@@ -255,7 +268,7 @@ void render_stats(Rectangle boundry){
     int hh=boundry.height/8;
     int rectww=boundry.width/4;
     int recthh=boundry.height/8;
-    int subTitleTextFront = boundry.width/20;
+    int subTitleTextFront = boundry.width/22;
 
 
     // DrawRectangleRounded(boundry,borderRadius,20,containerColor);
@@ -263,7 +276,7 @@ void render_stats(Rectangle boundry){
     DrawText("Stats",boundry.x+textPadding, boundry.y+textPadding,textSize,ColorFromHSV(135,1,1));
 
     // ----------------
-    DrawText("Ready queue",boundry.x+textPadding, boundry.y+boundry.height/6,subTitleTextFront+subTitleTextFront*0.2,BLACK);
+    DrawText("Ready queue",boundry.x+textPadding, boundry.y+boundry.height/6,subTitleTextFront+subTitleTextFront*0.2,ColorFromHSV(135,1,1));
     if(ganttSize!=0){
         if(currNode.readyQueueSize!=0){
             int readyQueueRectSize = boundry.width*0.15;
@@ -394,7 +407,7 @@ void render_menu(Rectangle boundry){
     // DrawTextEx(font,"Scheduling Algorithms",(Vector2){boundry.x+textPadding, boundry.y+3*textPadding},textSize,0,RED);
     DrawText("Scheduling Algorithms",boundry.x+textPadding, boundry.height * 0.26 - textSize, 0.75 * textSize,ColorFromHSV(135,1,1));
     if(GuiDropdownBox((Rectangle){boundry.x+boundry.width * 0.1, boundry.height * 0.26, boundry.width * 0.8, boundry.height * 0.11}, algoOptions, &selectedAlgoIndex, algosDropDown1EditMode)) {
-        //  algosDropDown1EditMode = !algosDropDown1EditMode;
+         algosDropDown1EditMode = !algosDropDown1EditMode;
         //  if(!algosDropDown1EditMode && !isStartButtonPressed) {
         //  }
     }
@@ -422,7 +435,7 @@ void preview_screen(void){
         .x = padding,
         .y = 2*h/3 + gap,
         .width = w-2*padding,
-        .height = (h-gap)/3 - padding,
+        .height = (h-2*gap)/3 - 2*padding,
     };
     render_gantt(ganttRect);
     Rectangle menuRect = {
