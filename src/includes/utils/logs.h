@@ -43,11 +43,11 @@ void execution_log(InstantResultNode state) {
         }
     }
     printf("--------------------\n");
-    #ifdef _WIN32
-        Sleep(1000);  // Sleep function in Windows takes milliseconds
-    #else
-        sleep(1);     // sleep function in Unix-like systems takes seconds
-    #endif
+    // #ifdef _WIN32
+    //     Sleep(1000);  // Sleep function in Windows takes milliseconds
+    // #else
+    //     sleep(1);     // sleep function in Unix-like systems takes seconds
+    // #endif
 }
 
 void metrics_log(Metrics metrics) {
@@ -57,10 +57,10 @@ void metrics_log(Metrics metrics) {
     // Print Average Rotation Time in yellow
     printf(ANSI_COLOR_YELLOW "Average Rotation Time: %.2f\n" ANSI_COLOR_RESET, metrics.averageRotation);
     printf("--------------------\n");
-    #ifdef _WIN32
-        Sleep(1000);  // Sleep function in Windows takes milliseconds
-    #else
-        sleep(1);     // sleep function in Unix-like systems takes seconds
-    #endif
+    // #ifdef _WIN32
+    //     Sleep(1000);  // Sleep function in Windows takes milliseconds
+    // #else
+    //     sleep(1);     // sleep function in Unix-like systems takes seconds
+    // #endif
     
 }
