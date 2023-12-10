@@ -81,7 +81,8 @@ AlgoResult preemptive_priority(Queue* processesQ, int processNumber, int quantum
                     mProcess.process=newProcess;
                     mProcess.readyFrom=currentTime;
                     mProcess.remainingRunTime=newProcess.runTime;
-                    mProcess.new= newProcess.priority==(highestPriorityProcess->process).priority ? 1 : 0 ;
+                    // mProcess.new= newProcess.priority==(highestPriorityProcess->process).priority ? 1 : 0 ;
+                    mProcess.new = 0;
                     if(newProcess.priority > (highestPriorityProcess->process).priority){
                         isPriorityBigger=1;
                     }
@@ -91,7 +92,7 @@ AlgoResult preemptive_priority(Queue* processesQ, int processNumber, int quantum
             if(isPriorityBigger){
                 if(highestPriorityProcess->remainingRunTime!=0){
                     highestPriorityProcess->readyFrom=currentTime;
-                    highestPriorityProcess->new=0;
+                    highestPriorityProcess->new=1;
                     push(pq,highestPriorityProcess);
                 }
             }else{
@@ -105,7 +106,7 @@ AlgoResult preemptive_priority(Queue* processesQ, int processNumber, int quantum
                 }
                 else{
                     highestPriorityProcess->readyFrom=currentTime;
-                    highestPriorityProcess->new=0;
+                    highestPriorityProcess->new=1;
                     push(pq,highestPriorityProcess);
                 }
             }
