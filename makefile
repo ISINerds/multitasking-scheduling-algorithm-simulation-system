@@ -29,5 +29,5 @@ update:
 	@echo 'MSASS has been updated successfully !'
 	
 run:  
-	@./build/main
 	@echo 'Welcome to MSASS !'
+	@./build/main

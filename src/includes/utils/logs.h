@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include "./instant_result_node.h"
 #include "./metrics.h"
-// ANSI escape codes for text colors
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
 #define ANSI_COLOR_YELLOW  "\x1b[33m"
@@ -43,24 +42,11 @@ void execution_log(InstantResultNode state) {
         }
     }
     printf("--------------------\n");
-    // #ifdef _WIN32
-    //     Sleep(1000);  // Sleep function in Windows takes milliseconds
-    // #else
-    //     sleep(1);     // sleep function in Unix-like systems takes seconds
-    // #endif
 }
 
 void metrics_log(Metrics metrics) {
-    // Print Average Waiting Time in green
     printf(ANSI_COLOR_GREEN "Average Waiting Time: %.2f\n" ANSI_COLOR_RESET, metrics.averageWaiting);
 
-    // Print Average Rotation Time in yellow
     printf(ANSI_COLOR_YELLOW "Average Rotation Time: %.2f\n" ANSI_COLOR_RESET, metrics.averageRotation);
-    printf("--------------------\n");
-    // #ifdef _WIN32
-    //     Sleep(1000);  // Sleep function in Windows takes milliseconds
-    // #else
-    //     sleep(1);     // sleep function in Unix-like systems takes seconds
-    // #endif
-    
+    printf("--------------------\n");    
 }
