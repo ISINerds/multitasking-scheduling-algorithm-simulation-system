@@ -10,8 +10,8 @@
 
 typedef struct MultitaskProcess{
     Process process;
-    int readyFrom;
-    int new;
+    // int readyFrom;
+    int order;
 }MultitaskProcess;
 
 
@@ -22,22 +22,23 @@ int compare_process_priority_multilevel(const void *a, const void *b) {
     }else if((((MultitaskProcess*)a)->process).priority > (((MultitaskProcess*)b)->process).priority){
         return 1;
     }else{
-        if(((MultitaskProcess*)a)->readyFrom > ((MultitaskProcess*)b)->readyFrom){
-            return -1;
-        }else if(((MultitaskProcess*)a)->readyFrom < ((MultitaskProcess*)b)->readyFrom){
-            return 1;
-        }else{
-            if(((MultitaskProcess*)a)->new > ((MultitaskProcess*)b)->new){
+        // if(((MultitaskProcess*)a)->readyFrom > ((MultitaskProcess*)b)->readyFrom){
+        //     return -1;
+        // }else if(((MultitaskProcess*)a)->readyFrom < ((MultitaskProcess*)b)->readyFrom){
+        //     return 1;
+        // }else{
+            if(((MultitaskProcess*)a)->order > ((MultitaskProcess*)b)->order){
                 return 1;
             }else{
                 return -1;
             }
-        }
+        // }
     }
 }
 
 AlgoResult multilevel(Queue* queue,int processNumber,int quantum){
     int t=0,runTimeSum=0;
+    int precedenceOrder = 0;
     float averageRotationTime=0.0,averageWaitingTime=0.0;
     PriorityQueue* pq = init_priority_queue(processNumber,sizeof(MultitaskProcess),compare_process_priority_multilevel);
     AlgoResult result;
@@ -49,8 +50,8 @@ AlgoResult multilevel(Queue* queue,int processNumber,int quantum){
                 MultitaskProcess pp = {0};
                 runTimeSum+=process.runTime;
                 pp.process=process;
-                pp.readyFrom=t;
-                pp.new=0;
+                // pp.readyFrom=t;
+                pp.order=precedenceOrder--;
                 push(pq,&pp);
             }
         }
@@ -67,8 +68,9 @@ AlgoResult multilevel(Queue* queue,int processNumber,int quantum){
                         MultitaskProcess pp= {0};
                         runTimeSum+=process.runTime;
                         pp.process=process;
-                        pp.readyFrom=t;
-                        pp.new=process.priority==(p->process).priority?1:0;
+                        // pp.readyFrom=t;
+                        pp.order = precedenceOrder--;
+                        // pp.order=process.priority==(p->process).priority?1:0;
                         if(process.priority>(p->process).priority){
                             isPriorityBigger=1;
                         }
@@ -83,8 +85,8 @@ AlgoResult multilevel(Queue* queue,int processNumber,int quantum){
                     }
                     enqueue_gantt(result.gantt,t-1,(p->process).processName,(p->process).runTime==0?1:0,list,elements.readyQueueSize);
                     if((p->process).runTime!=0){
-                        p->readyFrom=t;
-                        p->new=0;
+                        // p->readyFrom=t;
+                        p->order=precedenceOrder--;
                         push(pq,p);
                     }else{
                         averageRotationTime+=t-(p->process).arrivalTime;
@@ -108,8 +110,8 @@ AlgoResult multilevel(Queue* queue,int processNumber,int quantum){
                         }
                         enqueue_gantt(result.gantt,t-1,(p->process).processName,0,list,elements.readyQueueSize);
 
-                        p->readyFrom=t;
-                        p->new=0;
+                        // p->readyFrom=t;
+                        p->order=precedenceOrder--;
                         push(pq,p);
                     }else{
                         ReadyQueueElements elements = getPriorityQueueElements(pq);
@@ -126,6 +128,7 @@ AlgoResult multilevel(Queue* queue,int processNumber,int quantum){
             t++;
         }
     }
+    free_priority_queue(pq);
     averageWaitingTime=(averageRotationTime-runTimeSum)/(float)processNumber;
     averageRotationTime/=(float)processNumber;
     add_metrics(&result,averageRotationTime,averageWaitingTime);

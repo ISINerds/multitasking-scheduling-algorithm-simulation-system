@@ -23,7 +23,7 @@ void sort_by_arrival_time(Process* processes, int numProcesses);
 Queue* create_queue_from_array( Process* processes,int numProcesses);
 int size_q(Queue* queue);
 char** create_array_from_queue(Queue* queue, int size);
-
+void free_queue(Queue* q);
 
 //------------ Check if the queue is empty or not
 int is_empty_q(Queue* queue){
@@ -134,6 +134,13 @@ char** create_array_from_queue(Queue* queue,int size){
         current_node = current_node->next;
     }
     return array_of_processes;
+}
+void free_queue(Queue* q) {
+    Queue* tmp = NULL;
+    while(!is_empty_q(q)) {
+        dequeue(q);
+    }
+    free(q);
 }
 // An example where we define a static table of processes and then we create a queue from it. We add( enqueue)
 // another process and then we dequeue them all while reading the processes names
