@@ -95,6 +95,14 @@ AlgoResult preemptive_priority(Queue* processesQ, int processNumber, int quantum
                     highestPriorityProcess->new=1;
                     push(pq,highestPriorityProcess);
                 }
+                if(highestPriorityProcess->remainingRunTime==0){
+                    finish =1;
+                    terminated++;
+                    // Calculate the rotation and waiting time
+                    int currentRotationTime= currentTime - (highestPriorityProcess->process).arrivalTime;
+                    rotationTime+= currentRotationTime;
+                    waitingTime+=(currentRotationTime - (highestPriorityProcess->process).runTime);
+                }
             }else{
                 if(highestPriorityProcess->remainingRunTime==0){
                     finish =1;
@@ -118,6 +126,7 @@ AlgoResult preemptive_priority(Queue* processesQ, int processNumber, int quantum
                     readyQueue,
                     readyQueueElements.readyQueueSize
                 );
+                free(highestPriorityProcess);
         } else {
             currentTime++;
             enqueue_gantt(
