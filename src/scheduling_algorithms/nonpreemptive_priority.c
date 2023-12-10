@@ -32,7 +32,9 @@ AlgoResult nonpreemptive_priority(Queue* processesQ, int processNumber, int quan
                 char ** readyQueue = (char*) malloc(readyQueueElements.readyQueueSize * sizeof(char*));
                 for(int i=0;i<readyQueueElements.readyQueueSize;i++){
                     readyQueue[i]= ((Process*)readyQueueElements.readyQueue[i])->processName;
+                    free(readyQueueElements.readyQueue[i]);
                 }
+                free(readyQueueElements.readyQueue);
                 if(t==currentTime+currentProcess->runTime-1){
                     finish =1;
                 }

@@ -1,58 +1,37 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#ifndef PRIORITYQUEUE 
-#define PRIORITYQUEUE
 #include "../includes/data_structures/priority_queue.h"
-#endif
-
-#ifndef QUEUE 
-#define QUEUE 
 #include "../includes/data_structures/queue.h"
-#endif
-
-#ifndef ALGORESULT
-#define ALGORESULT 
 #include "../includes/utils/algo_result.h"
-#endif
-
-#ifndef PROCESSESTABLE
-#define PROCESSESTABLE 
 #include "../includes/utils/ProcessesTable.h"
-#endif
 
 AlgoResult SRT (Queue * Q,int sizeOfArray, int quantum) {
 
     PriorityQueue * PQ = init_priority_queue(sizeOfArray,sizeof(Process),compare_process_runTime);
-    printf("init queue Done\n");
-    int idle=0;
+    // int idle=0;
     int tRotation=0;
     int allRunTimes=0;
     int tWaiting=0;
 
     int current_time = 0;
     int completed_processes = 0;
-    Process * electedProcess;
+    
 
     //algo result
     Gantt * gantt= create_gantt();
-    printf("created gantt\n");
     while(completed_processes<sizeOfArray) {
         if (!is_empty_q(Q)) {
-            Process firstP = (Q->front)->data ;
-            while (!is_empty_q(Q)&& firstP.arrivalTime<=current_time) {
+            Process firstP = {0} ;
+            while (!is_empty_q(Q)&& Q->front->data.arrivalTime<=current_time) {
                 allRunTimes += firstP.runTime;
                 firstP=dequeue(Q);
                 push(PQ, &firstP);
-                printf("%s\n",firstP.processName);
                 // Process firstP = (Q->front)->data ;
             }
         }
         if (!is_empty_pq(PQ)){
-
-
-            electedProcess = (Process *)pop(PQ);
-            //printf("\n Process %s is executing from t: %d to t: %d \n",electedProcess->processName,current_time,current_time+1);
+            Process * electedProcess = (Process *)pop(PQ);
             electedProcess->runTime--;
             
             ReadyQueueElements RQElements = getPriorityQueueElements(PQ);
@@ -61,9 +40,10 @@ AlgoResult SRT (Queue * Q,int sizeOfArray, int quantum) {
             for (int k=0;k<RQElements.readyQueueSize;k++) {
                 void* e= RQElements.readyQueue[k];
                 tableofNames[k]=((Process*)e)->processName;
+                free(RQElements.readyQueue[k]);
                 //printf(" %s ", ((Process*)e)->processName);
             }
-
+            free(RQElements.readyQueue);
             // for (int k=0;k<RQElements.readyQueueSize;k++) {
             //     printf(" %s ",tableofNames[k]);
             // }
@@ -86,31 +66,30 @@ AlgoResult SRT (Queue * Q,int sizeOfArray, int quantum) {
                 enqueue_gantt(gantt,current_time,electedProcess->processName,0,tableofNames,RQElements.readyQueueSize);
                 push(PQ,electedProcess);
             }
+            free(electedProcess);
         }
         else {
             enqueue_gantt(gantt,current_time,NULL,0,NULL,0);
             //printf("********** CPU is IDLE ***********\n");
-            idle++;
+            // idle++;
         }        
 
         current_time++;
-        printf("current Time  = %d\n",current_time);
     }
-    printf("Done running the algo \n");
     tWaiting -= allRunTimes;
     float averageWaitingTime = (float) tWaiting/sizeOfArray;
     float averageRotationTime= (float) tRotation/sizeOfArray;
 
     AlgoResult algoResult;
-    add_metrics(&algoResult,averageRotationTime,averageRotationTime);
+    add_metrics(&algoResult,averageRotationTime,averageWaitingTime);
     algoResult.gantt=gantt;
 
     // printf("\n IDLE CPU Percentage : %.1f%% \n", (float)idle/current_time*100);
     // printf ("************************************ \n  average rotation time - : %.2f \n", averageRotationTime);
     // printf ("************************************ \n  average waiting time - : %.2f \n", averageWaitingTime);
-    free(electedProcess);
+    
     free_priority_queue(PQ);
-    free(Q);
+    // free(Q);
 
     return algoResult;
 
