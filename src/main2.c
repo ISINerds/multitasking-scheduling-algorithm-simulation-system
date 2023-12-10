@@ -212,7 +212,7 @@ void render_gantt(Rectangle boundry){
     static float panelVelocity = 0.0;
     if(CheckCollisionPointRec(GetMousePosition(),boundry)){
         panelVelocity *= 0.9;
-        panelVelocity+=GetMouseWheelMove()*boundry.height;
+        panelVelocity+=GetMouseWheelMove()*boundry.height*5;
         panelScroll+=panelVelocity*GetFrameTime();
     }
     // printf("%d %d %f \n", boundry.x, boundry.y, panelScroll);
@@ -367,6 +367,14 @@ void render_menu(Rectangle boundry){
     // if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+22*textPadding,boundry.width - 20,30},"Reset")&&!algosDropDown1EditMode) {
     if(GuiButton((Rectangle){boundry.x+boundry.width*0.11 + boundry.width * 0.4,boundry.y+boundry.height*0.81 ,boundry.width * 0.4, boundry.height * 0.11},"Reset")&&!algosDropDown1EditMode) {
         if(!isStartButtonPressed) {
+            if(ganttRectangles) {
+                freeProcesses(processes, processes_number);
+                processes = NULL;
+                printf("ganttrectangles are being freed\n");
+                free(ganttRectangles);
+                ganttRectangles = NULL;
+                printf("----------------\n");
+            }
             //generate processes
             generate_processes_file("config.conf","processes.txt",';');
             printf("new file generated\n");
@@ -374,12 +382,6 @@ void render_menu(Rectangle boundry){
             ganttRectanglesSize = 0;
             processes_number = getNbProcesses("./processes.txt");
             processes = getTableOfProcesses("./processes.txt");
-            if(ganttRectangles) {
-                printf("ganttrectangles are being freed\n");
-                free(ganttRectangles);
-                ganttRectangles = NULL;
-                printf("----------------\n");
-            }
         }
     }
     
@@ -392,9 +394,9 @@ void render_menu(Rectangle boundry){
     // DrawTextEx(font,"Scheduling Algorithms",(Vector2){boundry.x+textPadding, boundry.y+3*textPadding},textSize,0,RED);
     DrawText("Scheduling Algorithms",boundry.x+textPadding, boundry.height * 0.26 - textSize, 0.75 * textSize,ColorFromHSV(135,1,1));
     if(GuiDropdownBox((Rectangle){boundry.x+boundry.width * 0.1, boundry.height * 0.26, boundry.width * 0.8, boundry.height * 0.11}, algoOptions, &selectedAlgoIndex, algosDropDown1EditMode)) {
-         algosDropDown1EditMode = !algosDropDown1EditMode;
-         if(!algosDropDown1EditMode && !isStartButtonPressed) {
-         }
+        //  algosDropDown1EditMode = !algosDropDown1EditMode;
+        //  if(!algosDropDown1EditMode && !isStartButtonPressed) {
+        //  }
     }
 }
 void preview_screen(void){

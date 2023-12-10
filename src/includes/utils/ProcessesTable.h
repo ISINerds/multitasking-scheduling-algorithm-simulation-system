@@ -107,9 +107,9 @@ Process *getTableOfProcesses(const char* file_path) {
     fclose(fPointer);
 }
 
-void freeProcesses() {
-    for (int i = 0; i < processesTable.processesNumber; i++) {
-        free(processesTable.processes[i].processName);
+void freeProcesses(Process* processes, int nbProcesses) {
+    for (int i = 0; i < nbProcesses; i++) {
+        free(processes[i].processName);
     }
-    free(processesTable.processes);
+    free(processes);
 }
