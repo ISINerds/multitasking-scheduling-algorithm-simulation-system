@@ -88,7 +88,7 @@ AlgoResult multilevel_v2(Queue* processesQ,int processNumber,int quantum){
                 enqueue_gantt(result.gantt,t-1,currProcessNode->data.processName,currProcessNode->data.runTime==0?1:0,list,readyQueueSize);
 
                 if(currProcessNode->data.runTime == 0) {
-                    totalRotationTime += t;
+                    totalRotationTime += t - currProcessNode->data.arrivalTime;
                 }
                 int isPriorityBigger=0;
                 int samePriorityPushed = 0;
@@ -155,8 +155,9 @@ AlgoResult multilevel_v2(Queue* processesQ,int processNumber,int quantum){
         }
         
     }
+    free_priority_queue(pq);
     for(int i=0;i<maximumPriorityClass+1;i++) {
-        free(queues[i]);
+        free_queue(queues[i]);
     }
     free(queues);   
     float averageRotationTime = (float)totalRotationTime / processNumber;

@@ -394,7 +394,7 @@ void render_menu(Rectangle boundry){
     // DrawTextEx(font,"Scheduling Algorithms",(Vector2){boundry.x+textPadding, boundry.y+3*textPadding},textSize,0,RED);
     DrawText("Scheduling Algorithms",boundry.x+textPadding, boundry.height * 0.26 - textSize, 0.75 * textSize,ColorFromHSV(135,1,1));
     if(GuiDropdownBox((Rectangle){boundry.x+boundry.width * 0.1, boundry.height * 0.26, boundry.width * 0.8, boundry.height * 0.11}, algoOptions, &selectedAlgoIndex, algosDropDown1EditMode)) {
-        //  algosDropDown1EditMode = !algosDropDown1EditMode;
+         algosDropDown1EditMode = !algosDropDown1EditMode;
         //  if(!algosDropDown1EditMode && !isStartButtonPressed) {
         //  }
     }
