@@ -2,18 +2,18 @@ build_raylib:
 	@sudo apt install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
 	@sudo sudo apt-get install libglfw3
 	@sudo apt-get install libglfw3-dev
-	@mkdir build_raylib
-	@cd build_raylib
-	@cmake ..
-	@make
+	@chmod +x ./install_raylib.sh
+	@./install_raylib.sh
 	@echo 'Raylib and Raygui successfully integrated to MSASS!'
 
 build:
 	@mkdir ./build
-	@gcc ./src/main.c -o ./build/main -ldl
+	@gcc ./src/main.c -o ./build/main -ldl -w
 	@mkdir ./build/algorithms
 	@chmod +x ./script.sh
 	@./script.sh
+	@chmod +x ./src/build.sh
+	@./src/build.sh
 	@echo 'MSASS has been built successfully !'
 
 remove: 
@@ -25,8 +25,6 @@ update:
 	@./script.sh 
 	@echo 'MSASS has been updated successfully !'
 	
-run: 
-#@./build/main
-	@./src/build.sh 
-	@./src/main2
+run:  
+	@./build/main2
 	@echo 'Welcome to MSASS !'
