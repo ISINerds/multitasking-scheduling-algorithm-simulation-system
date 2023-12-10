@@ -82,7 +82,7 @@ Upon running the project, the interface will be displayed. Use the interface con
     make run
     ```
  
-4. This command can be used if you've added a new scheduliing algorithm or maade some changes to existing one. It updates the build to take into consideration new additions and automatically add the new algorithm to the menu.
+4. This command can be used if you've added a new scheduliing algorithm or made some changes to existing one. It updates the build to take into consideration new additions and automatically add the new algorithm to the menu.
    
     ```
     make update
