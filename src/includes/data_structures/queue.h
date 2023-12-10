@@ -2,7 +2,6 @@
 #include "../utils/process.h"
 
 
-//------------ Define structures
 typedef struct Node {
     Process data;
     struct Node* next;
@@ -25,12 +24,10 @@ int size_q(Queue* queue);
 char** create_array_from_queue(Queue* queue, int size);
 void free_queue(Queue* q);
 
-//------------ Check if the queue is empty or not
 int is_empty_q(Queue* queue){
     return (queue->front == NULL);
 }
 
-//------------ Initialize an empty queue
 Queue* create_queue(){
 
     Queue* queue = (Queue*)malloc(sizeof(Queue)); 
@@ -43,7 +40,6 @@ Queue* create_queue(){
         return queue;
     }
 }
-//------------ Create a node for the queue
 Node* create_node(Process process){
     Node* new_node = (Node*)malloc(sizeof(Node)); 
     if(!new_node){
@@ -56,7 +52,6 @@ Node* create_node(Process process){
         return new_node;
     }
 }
-//------------ Add an element to the queue
 void enqueue(Queue* queue, Process process) {
     Node* new_node = create_node(process);
     if(is_empty_q(queue)){
@@ -69,7 +64,6 @@ void enqueue(Queue* queue, Process process) {
     }
 }
 
-//------------ Remove an element from the queue and return its data ( whish is a process)
 Process dequeue(Queue* queue) {
     if(is_empty_q(queue)){
         printf("[ERROR] : Queue is already empty\n");
@@ -84,14 +78,12 @@ Process dequeue(Queue* queue) {
     }
 };
 
-// Function to swap two processes
 void swap_q( Process* a,  Process* b){
     Process temp = *a;
     *a = *b;
     *b = temp;
 }
 
-//------------- Sort the array by Arrival time
 void sort_by_arrival_time(Process* processes, int numProcesses){
     for (int i = 0; i < numProcesses - 1; i++) {
         for (int j = 0; j < numProcesses - i - 1; j++){
@@ -102,7 +94,6 @@ void sort_by_arrival_time(Process* processes, int numProcesses){
     }
 }
 
-//------------ Create a queue from an array
 Queue* create_queue_from_array( Process* processes,int numProcesses){
     Process* copy_from_processes = (Process*)malloc(numProcesses * sizeof(Process));
     memcpy(copy_from_processes, processes, numProcesses * sizeof(Process));
@@ -142,33 +133,3 @@ void free_queue(Queue* q) {
     }
     free(q);
 }
-// An example where we define a static table of processes and then we create a queue from it. We add( enqueue)
-// another process and then we dequeue them all while reading the processes names
-// #include<stdio.h>
-// #include<stdlib.h>
-// #include "./queue.h"
-// int main(void){
-//     Process processes[] = {
-//         {"Process1", 2, 10, 1},
-//         {"Process2", 5, 8, 2},
-//         {"Process3", 1, 15, 3},
-//         {"Process4", 10, 15, 3},
-//         {"Process5", 7, 5, 13},
-//         {"Process6", 5, 4, 3},
-//         {"Process7", 3, 7, 2},
-//         {"Process8", 9, 4, 3},
-//     };
-//     Queue* q = create_queue_from_array(processes,8);
-//     enqueue(q,(Process){"Process9",14, 4, 3});
-//     char**t = create_array_from_queue(q,size_q(q));
-//     for(int i=0;i<size_q(q);i++){
-//         printf(t[i]);
-//     }
-//     while(!is_empty_q(q)){
-//         Process p = dequeue(q);
-//         printf("%s arrives at %d \n",p.processName , p.arrivalTime);
-//     }
-//     return 0;
-// }
-
-

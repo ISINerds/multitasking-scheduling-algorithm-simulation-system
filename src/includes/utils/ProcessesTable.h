@@ -4,9 +4,6 @@
 #include <string.h>
 #include "../utils/process.h"
 
-// This C program will be :
-// 1- parsing the processes file
-// 2- Generate a static table of a convenient format of the Process details
 
 struct processesTable {
     int processesNumber;
@@ -20,12 +17,10 @@ Process* getTableOfProcesses(const char* file_path);
 void freeProcesses();
 
 int getNbProcesses(const char* file_path) {
-    // if(processesTable.processesNumber != -1) return processesTable.processesNumber;
     FILE *fPointer= fopen(file_path,"r");
     char content[255];
 
     if (fPointer != NULL ) {
-        //Getting the number of processes
         fgets(content,255,fPointer);
         return processesTable.processesNumber = atoi(content);
     }
@@ -37,17 +32,14 @@ int getNbProcesses(const char* file_path) {
 }
 
 
-//The function that tokenizes a string and return a Process struct.
 Process tokenize (char ch[255],char del[]) {
     Process result;
     ch[strcspn(ch, "\n")] = '\0';
 
     char *token;
 
-    //an integer to determine which Process Attribute we are parsing;
     int nb=1;
 
-    // Tokenize the string using strtok
     token = strtok(ch, del);
 
     while (token != NULL) {
@@ -72,12 +64,8 @@ Process tokenize (char ch[255],char del[]) {
 
 
 Process *getTableOfProcesses(const char* file_path) {
-    // if(processesTable.processes != NULL) return processesTable.processes;
-
-    //Choosing the seperator character 
     char sep[] = ";";
 
-    //The size of the processes table
     int sizeTable;
     int i=0;
 
@@ -85,15 +73,12 @@ Process *getTableOfProcesses(const char* file_path) {
     char content[255];
 
     if (fPointer != NULL ) {
-            //Getting the number of processes
             fgets(content,255,fPointer);
             sizeTable = atoi(content);
             Process* processes = (Process*)malloc(sizeTable * sizeof(Process));
-            //printf("Size of the table is : %d \n",sizeTable);
 
             while(!feof(fPointer) && i < sizeTable){
                 fgets(content,255,fPointer);
-                // tokenize(content, sep, &processes[i]);
                 processes[i]=tokenize(content,sep);
                 i++;
             }

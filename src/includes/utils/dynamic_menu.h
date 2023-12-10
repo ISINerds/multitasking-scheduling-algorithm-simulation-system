@@ -64,10 +64,8 @@ Algorithm* load_all_algorithms(const char *dirPath){
         algorithms[i].handle = dlopen(filename, RTLD_LAZY);  
 
         if (algorithms[i].handle != NULL) {
-            // Load the function to execute 
             algorithms[i].run = dlsym(algorithms[i].handle, entry->d_name);
 
-            // Extract algorithm name from filename
             strcpy(algorithms[i].name, entry->d_name);
             
             i++;
@@ -86,7 +84,6 @@ void display_menu(Algorithm* algorithms, int nbAlgorithms){
         return EXIT_FAILURE;
     }
 
-    // Display menu based on loaded algorithms
     printf("Available algorithms:\n");
     for (int i = 0; i < nbAlgorithms; i++) {
         printf("%d- %s\n", i + 1, algorithms[i].name);
@@ -101,26 +98,3 @@ void unload_all_algorithms(Algorithm* algorithms, int nbAlgorithms){
     }
     free(algorithms);
 }
-
-// int main() {
-    
-//     int nbAlgorithms = get_nb_algorithms("./build/algorithms");
-//     Algorithm* algorithms = load_all_algorithms("./build/algorithms");
-//     display_menu(algorithms,nbAlgorithms);
-
-//     int choice;
-//     do{
-//         printf("Enter your choice: ");
-//         scanf("%d", &choice);
-
-//         if (choice >= 1 && choice <= nbAlgorithms) {
-//             //TODO: call the run fct accordingly 
-            
-//         } else {
-//             printf("Invalid choice\n");
-//         }
-//     } while(choice !=0 );
-
-//     unload_all_algorithms(algorithms, nbAlgorithms);
-//     return EXIT_SUCCESS;
-// }

@@ -90,27 +90,4 @@ int size_gantt(Gantt* ganttQueue){
         current_node = current_node->next;
     }
     return size;
-} 
-
-// example :
-// #include<stdio.h>
-// #include "algo_result.h"
-
-// int main(void){
-//     AlgoResult result;
-//     result.gantt=create_gantt();
-//     add_metrics(&result,1.4,1.5);
-//     char** list = (char**)malloc(3*sizeof(char*));
-//     list[0]="hi";
-//     list[1]="hello";
-//     list[2]="by";
-//     for(int i=0;i<10;i++){
-//         enqueue_gantt(result.gantt,i,"hello",0,list,3);
-//     }
-//     while(!is_empty_gantt(result.gantt)){
-//         InstantResultNode node = dequeue_gantt(result.gantt);
-//         printf("%d\n",node.t);
-//     }
-//     printf("%f %f\n",result.metrics.averageRotation,result.metrics.averageWaiting);
-//     return 1;
-// }
+}

@@ -1,9 +1,9 @@
 #pragma once
 typedef struct InstantResultNode{
     int t;
-    char* processName; // null <=> idle state
+    char* processName;
     char** readyQueue;
     int readyQueueSize;
-    int quit; // 1 = finished
+    int quit;
     struct InstantResultNode* next;
 }InstantResultNode;
