@@ -366,6 +366,7 @@ void render_menu(Rectangle boundry){
             printf("I about to run the algo \n");
 
             algoResult = algorithms[selectedAlgoIndex].run(q, processes_number, quantumValue);
+            free_queue(q);
             printf("%f %f\n", algoResult.metrics.averageRotation, algoResult.metrics.averageWaiting);
             ganttSize = size_gantt(algoResult.gantt);
             printf("gantt size = %d\n",ganttSize);
