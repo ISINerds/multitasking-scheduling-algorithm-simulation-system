@@ -6,6 +6,7 @@
 #define RAYGUI_IMPLEMENTATION
 #include "../build_raylib/_deps/raygui-src/src/raygui.h"
 #include "raylib.h"
+#include "../assets/styles/style_terminal.h"
 
 #define textPadding 10
 #define borderRadius 0.1
@@ -13,7 +14,7 @@
 #define padding 5
 #define textSize 30
 #define containerColor (Color){ 220, 220, 220, 255 }
-#define backgroundColor (Color){255,255,255,1}
+#define backgroundColor (Color){13,2,8,1}
 Font font;
 
 
@@ -51,8 +52,10 @@ char* algosList;
 
 void render_job_pool(Rectangle boundry){
 
-    DrawRectangleRounded(boundry,borderRadius,20,containerColor);
-    DrawTextEx(font,"Job pool",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
+    // DrawRectangleRounded(boundry,borderRadius,20,containerColor);
+    
+    DrawRectangleRoundedLines(boundry,borderRadius,2,2,ColorFromHSV(120,1,1));
+    DrawText("Job pool",boundry.x+textPadding, boundry.y+textPadding,textSize,ColorFromHSV(135,1,1));
 
     int padding_x = 20;
     int padding_y_top = 60;
@@ -62,24 +65,31 @@ void render_job_pool(Rectangle boundry){
     float width = boundry.width - 2*padding_x;
     float height = boundry.height - padding_y;
 
-    BeginScissorMode(boundry.x+padding_x, boundry.y+padding_y_top, width ,height);
+    BeginScissorMode(boundry.x, boundry.y + padding_y_top*0.8, boundry.width ,boundry.height - 1.2*padding_y_top);
     
     static float panelScrollX = 20.0;
     static float panelVelocityX = 0.0;
     if(CheckCollisionPointRec(GetMousePosition(),boundry)){
-        panelVelocityX *= 0.9;
-        panelVelocityX+=GetMouseWheelMoveV().x * boundry.width;
-        panelScrollX+=panelVelocityX * GetFrameTime();
+        if(IsKeyDown(KEY_LEFT_SHIFT) && GetMouseWheelMove()){
+            panelVelocityX *= 0.9;
+            panelVelocityX+=GetMouseWheelMove() * boundry.width;
+            panelScrollX+=panelVelocityX * GetFrameTime();
+        }else{
+            panelVelocityX *= 0.9;
+            panelVelocityX+=GetMouseWheelMoveV().x * boundry.width;
+            panelScrollX+=panelVelocityX * GetFrameTime();
+        }
     }
     float x_scroll = boundry.x+panelScrollX;
-
     // Horizantal Scroll 
     static float panelScrollY = 0.0;
     static float panelVelocityY = 0.0;
     if(CheckCollisionPointRec(GetMousePosition(),boundry)){
-        panelVelocityY *= 0.9;
-        panelVelocityY+=GetMouseWheelMoveV().y * boundry.height;
-        panelScrollY+=panelVelocityY*GetFrameTime();
+        if(!IsKeyDown(KEY_LEFT_SHIFT)){
+            panelVelocityY *= 0.9;
+            panelVelocityY+=GetMouseWheelMoveV().y * boundry.height;
+            panelScrollY+=panelVelocityY*GetFrameTime();
+        }
     }
     float y_scroll = boundry.y + panelScrollY;
 
@@ -115,27 +125,29 @@ void render_job_pool(Rectangle boundry){
 
     int current_y=0;
     for(int current_x=0;current_x<4;current_x++){
-        Rectangle rect={
+        Rectangle rect = {
             .x = current_x*column_width + padding_x/2 + x_scroll,
             .y = current_y*row_height + padding_y_top + y_scroll,
             .width = column_width,
             .height = row_height,
-        } ;
-        DrawRectangleRec(rect,LIGHTGRAY);
-        DrawRectangleLinesEx(rect, 2 , BLACK);
+        };
+        // DrawRectangleRec(rect,LIGHTGRAY);
+        
+        DrawRectangleRoundedLines(rect, borderRadius,2,2 , ColorFromHSV(120,1,1));
+        
         switch (current_x)
             {
             case 0:
-                DrawText("Process",rect.x + 10 , rect.y + 10 , 20, DARKGRAY);
+                DrawText("Process",rect.x + 10 , rect.y + 10 , 20, ColorFromHSV(120,1,1));
                 break;
             case 1:
-                DrawText("Arrival\n\nTime" ,rect.x + 10, rect.y + 10, 20, DARKGRAY);
+                DrawText("Arrival\n\nTime" ,rect.x + 10, rect.y + 10, 20, ColorFromHSV(120,1,1));
                 break;
             case 2:
-                DrawText("Burst\n\nTime" ,rect.x + 10 , rect.y + 10, 20, DARKGRAY);
+                DrawText("Burst\n\nTime" ,rect.x + 10 , rect.y + 10, 20, ColorFromHSV(120,1,1));
                 break;
             case 3:
-                DrawText("Priority" ,rect.x + 10 , rect.y + 10, 20, DARKGRAY);
+                DrawText("Priority" ,rect.x + 10 , rect.y + 10, 20, ColorFromHSV(120,1,1));
                 break;
             
             default:
@@ -153,21 +165,22 @@ void render_job_pool(Rectangle boundry){
                 .width = column_width,
                 .height = row_height,
             } ;
-            DrawRectangleRec(rect,LIGHTGRAY);
-            DrawRectangleLinesEx(rect, 2 , BLACK);
+            // DrawRectangleRec(rect,LIGHTGRAY);
+            DrawRectangleRoundedLines(rect, borderRadius,2,2 , ColorFromHSV(120,1,1));
+            // DrawRectangleLinesEx(rect, 2 , BLACK);
             switch (current_x)
             {
             case 0:
-                DrawText(processes[current_y-1].processName,rect.x + 10, rect.y + 10, 20, DARKGRAY);
+                DrawText(processes[current_y-1].processName,rect.x + 10, rect.y + 10, 20, ColorFromHSV(120,1,1));
                 break;
             case 1:
-                DrawText(TextFormat("%d", processes[current_y-1].arrivalTime) ,rect.x + 10, rect.y + 10, 20, DARKGRAY);
+                DrawText(TextFormat("%d", processes[current_y-1].arrivalTime) ,rect.x + 10, rect.y + 10, 20, ColorFromHSV(120,1,1));
                 break;
             case 2:
-                DrawText(TextFormat("%d", processes[current_y-1].runTime) ,rect.x + 10 , rect.y + 10, 20, DARKGRAY);
+                DrawText(TextFormat("%d", processes[current_y-1].runTime) ,rect.x + 10 , rect.y + 10, 20, ColorFromHSV(120,1,1));
                 break;
             case 3:
-                DrawText(TextFormat("%d", processes[current_y-1].priority) ,rect.x + 10, rect.y + 10, 20, DARKGRAY);
+                DrawText(TextFormat("%d", processes[current_y-1].priority) ,rect.x + 10, rect.y + 10, 20, ColorFromHSV(120,1,1));
                 break;
             
             default:
@@ -180,8 +193,9 @@ void render_job_pool(Rectangle boundry){
     EndScissorMode();
 }
 void render_gantt(Rectangle boundry){
-    DrawRectangleRounded(boundry,borderRadius,20,containerColor);
-    DrawTextEx(font,"Gantt",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
+    // DrawRectangleRounded(boundry,borderRadius,20,containerColor);
+    DrawRectangleRoundedLines(boundry,borderRadius,2,2,ColorFromHSV(120,1,1));
+    DrawText("Gantt",boundry.x+textPadding, boundry.y+textPadding,textSize,ColorFromHSV(135,1,1));
     if(isStartButtonPressed && algoResult.gantt &&  is_empty_gantt(algoResult.gantt)) {
         isStartButtonPressed = false;
         free(algoResult.gantt);
@@ -202,7 +216,7 @@ void render_gantt(Rectangle boundry){
         panelScroll+=panelVelocity*GetFrameTime();
     }
     // printf("%d %d %f \n", boundry.x, boundry.y, panelScroll);
-    panelScroll = fmax(min(0, panelScroll), -((ganttRectanglesSize) * (boundry.width*0.045 + textPadding) - boundry.width + textPadding));
+    panelScroll = fmax(min(0, panelScroll), -((ganttRectanglesSize) * (boundry.width*0.05 + textPadding) - boundry.width + textPadding));
     if(ganttRectanglesSize * (boundry.width*0.05 + textPadding) <= boundry.width) panelScroll = 0;
     boundry.x+=panelScroll;
     for(int i=0;i<ganttRectanglesSize;i++){
@@ -216,21 +230,21 @@ void render_gantt(Rectangle boundry){
             c = ColorFromHSV(360/processes_number*processNumber,1,0.5);
         }
         DrawRectangleRounded((Rectangle){
-            .x=textPadding+boundry.x+(boundry.width*0.045+textPadding)*i,
+            .x=textPadding+boundry.x+(boundry.width*0.05+textPadding)*i,
             .y=boundry.height*0.3+boundry.y,
             .width=boundry.width*0.05,
             .height=boundry.height*0.5,
         },0.1,20,c);
         char* timeChar[255];
         sprintf(timeChar, "%d", ganttRectangles[i].t);
-        DrawText(timeChar,boundry.x+textPadding+(boundry.width*0.045+textPadding)*i+1, boundry.height*0.3+boundry.y+10+boundry.height*0.5, boundry.width*0.014, BLACK);
-        DrawText(ganttRectangles[i].processName,textPadding+boundry.x+(boundry.width*0.045+textPadding)*i+6, boundry.height*0.3+boundry.y+10, 0.025*boundry.width, WHITE);
+        DrawText(timeChar,boundry.x+textPadding+(boundry.width*0.05+textPadding)*i+1, boundry.height*0.3+boundry.y+10+boundry.height*0.5, boundry.width*0.014, WHITE);
+        DrawText(ganttRectangles[i].processName,textPadding+boundry.x+(boundry.width*0.05+textPadding)*i+6, boundry.height*0.3+boundry.y+10, 0.025*boundry.width, WHITE);
         if(ganttRectangles[i].quit == 1) {
-            DrawRectangle(textPadding+boundry.x+(boundry.width*0.045+textPadding)*i +boundry.width*0.045, boundry.height*0.2+boundry.y, 4,boundry.height*0.2, c);
+            DrawRectangle(textPadding+boundry.x+(boundry.width*0.05+textPadding)*i +boundry.width*0.05 - 4, boundry.height*0.2+boundry.y, 4,boundry.height*0.2, c);
 
-            DrawTriangle((Vector2){ textPadding+boundry.x+(boundry.width*0.045+textPadding)*i +boundry.width*0.045 -10, boundry.height*0.2+boundry.y },
-                        (Vector2){ textPadding+boundry.x+(boundry.width*0.045+textPadding)*i +boundry.width*0.045 +12, boundry.height*0.2+boundry.y },
-                        (Vector2){ textPadding+boundry.x+(boundry.width*0.045+textPadding)*i + boundry.width*0.045, boundry.height*0.15+boundry.y }, c);
+            DrawTriangle((Vector2){ textPadding+boundry.x+(boundry.width*0.05+textPadding)*i +boundry.width*0.05 - 12 - 2, boundry.height*0.2+boundry.y },
+                        (Vector2){ textPadding+boundry.x+(boundry.width*0.05+textPadding)*i +boundry.width*0.05 + 12 - 2 , boundry.height*0.2+boundry.y },
+                        (Vector2){ textPadding+boundry.x+(boundry.width*0.05+textPadding)*i + boundry.width*0.05 - 2, boundry.height*0.15+boundry.y - 4}, c);
         }
     }
     EndScissorMode();
@@ -244,11 +258,12 @@ void render_stats(Rectangle boundry){
     int subTitleTextFront = boundry.width/20;
 
 
-    DrawRectangleRounded(boundry,borderRadius,20,containerColor);
-    DrawTextEx(font,"Stats",(Vector2){boundry.x+textPadding, boundry.y+textPadding},textSize,0,RED);
+    // DrawRectangleRounded(boundry,borderRadius,20,containerColor);
+    DrawRectangleRoundedLines(boundry,borderRadius,2,2,ColorFromHSV(120,1,1));
+    DrawText("Stats",boundry.x+textPadding, boundry.y+textPadding,textSize,ColorFromHSV(135,1,1));
 
     // ----------------
-    DrawTextEx(font,"Ready queue",(Vector2){boundry.x+textPadding, boundry.y+boundry.height/6},subTitleTextFront+subTitleTextFront*0.2,0,BLACK);
+    DrawText("Ready queue",boundry.x+textPadding, boundry.y+boundry.height/6,subTitleTextFront+subTitleTextFront*0.2,BLACK);
     if(ganttSize!=0){
         if(currNode.readyQueueSize!=0){
             int readyQueueRectSize = boundry.width*0.15;
@@ -262,57 +277,62 @@ void render_stats(Rectangle boundry){
                     .width=readyQueueRectSize,
                     .height=boundry.height/6,
                 },0.1,20,c);
-                DrawTextEx(font,currNode.readyQueue[i],(Vector2){boundry.x+textPadding+(boundry.width*.2)*i+readyQueueRectSize*.3, boundry.y+boundry.height/4+boundry.height/40},subTitleTextFront,0,WHITE);
+                DrawText(currNode.readyQueue[i],boundry.x+textPadding+(boundry.width*.2)*i+readyQueueRectSize*.3, boundry.y+boundry.height/4+boundry.height/40,subTitleTextFront,WHITE);
             }
         }
     }
     // ----------------
     // DrawTextEx(font,currNode.readyQueueSize!=0?currNode.readyQueue[0]:"",(Vector2){boundry.x+boundry.width/2,boundry.y+boundry.height/2},textSize,0,RED);
     // ------------------
-    DrawTextEx(font,"Current job",(Vector2){boundry.x+boundry.width/8+abs(ww-rectww)/2, boundry.y+2*boundry.height/4-hh/2},subTitleTextFront,0,BLACK);
-    DrawRectangle(boundry.x+boundry.width/8+abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh,WHITE);
-    DrawRectangleLinesEx((Rectangle){boundry.x+boundry.width/8+abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh},3, BLACK);
-    if(ganttSize!=0)DrawTextEx(font,currNode.processName,(Vector2){boundry.x+boundry.width/8+abs(ww-rectww)/2+ww/2-subTitleTextFront/2, boundry.y+2*boundry.height/4+hh/2-subTitleTextFront/2},subTitleTextFront,0,BLACK);
+    DrawText("Current job",boundry.x+boundry.width/8+abs(ww-rectww)/2, boundry.y+2*boundry.height/4-hh/2,subTitleTextFront,ColorFromHSV(120,1,1));
+    // DrawRectangle(boundry.x+boundry.width/8+abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh,WHITE);
+    DrawRectangleRoundedLines((Rectangle){boundry.x+boundry.width/8+abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh},borderRadius,2,2, ColorFromHSV(120,1,1));
+    // DrawRectangleLinesEx((Rectangle){boundry.x+boundry.width/8+abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh},3, ColorFromHSV(120,1,1));
+    if(ganttSize!=0)DrawText(currNode.processName,boundry.x+boundry.width/8+abs(ww-rectww)/2+ww/2-subTitleTextFront/2, boundry.y+2*boundry.height/4+hh/2-subTitleTextFront/2,subTitleTextFront,ColorFromHSV(120,1,1));
 
     //GuiIconText(ICON_REPEAT,"") ;
-    // DrawTextEx(font,"Current time",(Vector2){boundry.x+2.2*boundry.width/3, boundry.y+2.2*ReadyQrectangleHeight},subTitleTextFront,0,BLACK);
-    DrawTextEx(font,"Current time",(Vector2){boundry.x+boundry.width-ww-boundry.width/8-abs(ww-rectww)/2, boundry.y+2*boundry.height/4-hh/2},subTitleTextFront,0,BLACK);
-    DrawRectangle(boundry.x+boundry.width-ww-boundry.width/8-abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh,WHITE);
-    DrawRectangleLinesEx((Rectangle){boundry.x+boundry.width-ww-boundry.width/8-abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh},3, BLACK);
+    // DrawTextEx(font,"Current time",(Vector2){boundry.x+2.2*boundry.width/3, boundry.y+2.2*ReadyQrectangleHeight},subTitleTextFront,0,ColorFromHSV(120,1,1));
+    DrawText("Current time",boundry.x+boundry.width-ww-boundry.width/8-abs(ww-rectww)/2, boundry.y+2*boundry.height/4-hh/2,subTitleTextFront,ColorFromHSV(120,1,1));
+    // DrawRectangle(boundry.x+boundry.width-ww-boundry.width/8-abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh,WHITE);
+    DrawRectangleRoundedLines((Rectangle){boundry.x+boundry.width-ww-boundry.width/8-abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh},borderRadius,2,2, ColorFromHSV(120,1,1));
+    // DrawRectangleLinesEx((Rectangle){boundry.x+boundry.width-ww-boundry.width/8-abs(ww-rectww)/2,boundry.y+2*boundry.height/4,ww,hh},3, ColorFromHSV(120,1,1));
     // ADD the time here
     char ss[20];
     sprintf(ss,"%d",ganttRectanglesSize);
-    DrawTextEx(font,ss,(Vector2){boundry.x+boundry.width-ww-boundry.width/8-abs(ww-rectww)/2+ww/2-subTitleTextFront/2, boundry.y+2*boundry.height/4+hh/2-subTitleTextFront/2},subTitleTextFront,0,BLACK);
+    DrawText(ss,boundry.x+boundry.width-ww-boundry.width/8-abs(ww-rectww)/2+ww/2-subTitleTextFront/2, boundry.y+2*boundry.height/4+hh/2-subTitleTextFront/2,subTitleTextFront,ColorFromHSV(120,1,1));
 
 
-    // DrawTextEx(font,"Average rotation time",(Vector2){boundry.x+boundry.width/4.2, boundry.y+3.7*ReadyQrectangleHeight},subTitleTextFront,0,BLACK);
-    DrawTextEx(font,"Avg rotation time",(Vector2){boundry.x+boundry.width/8, boundry.y+3*boundry.height/4-hh/2},subTitleTextFront,0,BLACK);
-    DrawRectangle(boundry.x+boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh,WHITE);
-    DrawRectangleLinesEx((Rectangle){boundry.x+boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh},3, BLACK);
+    // DrawTextEx(font,"Average rotation time",(Vector2){boundry.x+boundry.width/4.2, boundry.y+3.7*ReadyQrectangleHeight},subTitleTextFront,0,ColorFromHSV(120,1,1));
+    DrawText("Avg rotation time",boundry.x+boundry.width/8, boundry.y+3*boundry.height/4-hh/2,subTitleTextFront,ColorFromHSV(120,1,1));
+    // DrawRectangle(boundry.x+boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh,WHITE);
+    DrawRectangleRoundedLines((Rectangle){boundry.x+boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh},borderRadius,2,2, ColorFromHSV(120,1,1));
+    // DrawRectangleLinesEx((Rectangle){boundry.x+boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh},3, ColorFromHSV(120,1,1));
     if(ganttRectanglesSize == ganttSize && ganttSize!=0){
         char sss[20];
         sprintf(sss,"%.2f",algoResult.metrics.averageRotation);
-        DrawTextEx(font,sss,(Vector2){boundry.x+boundry.width/8+ww/2-subTitleTextFront/2, boundry.y+3*boundry.height/4+hh/2-subTitleTextFront/2},subTitleTextFront,0,BLACK);
+        DrawText(sss,boundry.x+boundry.width/8+ww/2-subTitleTextFront/2, boundry.y+3*boundry.height/4+hh/2-subTitleTextFront/2,subTitleTextFront,ColorFromHSV(120,1,1));
     }else{
-        DrawTextEx(font,"",(Vector2){boundry.x+boundry.width/8+ww/2-subTitleTextFront/2, boundry.y+3*boundry.height/4+hh/2-subTitleTextFront/2},subTitleTextFront,0,BLACK);
+        DrawText("",boundry.x+boundry.width/8+ww/2-subTitleTextFront/2, boundry.y+3*boundry.height/4+hh/2-subTitleTextFront/2,subTitleTextFront,ColorFromHSV(120,1,1));
     }
 
-    DrawTextEx(font,"Avg waiting time",(Vector2){boundry.x+boundry.width-rectww-boundry.width/8, boundry.y+3*boundry.height/4-hh/2},subTitleTextFront,0,BLACK);
-    DrawRectangle(boundry.x+boundry.width-rectww-boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh,WHITE);
-    DrawRectangleLinesEx((Rectangle){boundry.x+boundry.width-rectww-boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh},3, BLACK);
+    DrawText("Avg waiting time",boundry.x+boundry.width-rectww-boundry.width/8, boundry.y+3*boundry.height/4-hh/2,subTitleTextFront,ColorFromHSV(120,1,1));
+    // DrawRectangle(boundry.x+boundry.width-rectww-boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh,WHITE);
+    DrawRectangleRoundedLines((Rectangle){boundry.x+boundry.width-rectww-boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh},borderRadius,2,2, ColorFromHSV(120,1,1));
+    // DrawRectangleLinesEx((Rectangle){boundry.x+boundry.width-rectww-boundry.width/8,boundry.y+3*boundry.height/4,rectww,recthh},3, ColorFromHSV(120,1,1));
     if(ganttRectanglesSize == ganttSize && ganttSize!=0){
         char sss[20];
         sprintf(sss,"%.2f",algoResult.metrics.averageWaiting);
-        DrawTextEx(font,sss,(Vector2){boundry.x+boundry.width-rectww-boundry.width/8+ww/2-subTitleTextFront/2, boundry.y+3*boundry.height/4+hh/2-subTitleTextFront/2},subTitleTextFront,0,BLACK);
+        DrawText(sss,boundry.x+boundry.width-rectww-boundry.width/8+ww/2-subTitleTextFront/2, boundry.y+3*boundry.height/4+hh/2-subTitleTextFront/2,subTitleTextFront,ColorFromHSV(120,1,1));
     }else{
-        DrawTextEx(font,"",(Vector2){boundry.x+boundry.width-rectww-boundry.width/8+ww/2-subTitleTextFront/2, boundry.y+3*boundry.height/4+hh/2-subTitleTextFront/2},subTitleTextFront,0,BLACK);
+        DrawText("",boundry.x+boundry.width-rectww-boundry.width/8+ww/2-subTitleTextFront/2, boundry.y+3*boundry.height/4+hh/2-subTitleTextFront/2,subTitleTextFront,ColorFromHSV(120,1,1));
     }
 
     // -------------------
 }
 void render_menu(Rectangle boundry){
-    DrawRectangleRounded(boundry,borderRadius,20,containerColor);
-    DrawTextEx(font,"Menu",(Vector2){boundry.x+textPadding, boundry.y+textPadding},1.2 * textSize,0,RED);
+    // DrawRectangleRounded(boundry,borderRadius,20,containerColor);
+    DrawRectangleRoundedLines(boundry,borderRadius,2,2,ColorFromHSV(120,1,1));
+    DrawText("Menu",boundry.x+textPadding, boundry.y+textPadding,1.2 * textSize,ColorFromHSV(135,1,1));
     // if(GuiButton((Rectangle){boundry.x+textPadding,boundry.y+18*textPadding,boundry.width - 20,30},"Start")&&!algosDropDown1EditMode) {
     // if(GuiButton((Rectangle){boundry.x + boundry.width * 0.1, boundry.y+boundry.height*0.64 ,boundry.width * 0.4, boundry.height * 0.11},"Start")&&!algosDropDown1EditMode) {
     if(GuiButton((Rectangle){boundry.x + boundry.width * 0.09, boundry.y+boundry.height*0.81 ,boundry.width * 0.4, boundry.height * 0.11},"Start")&&!algosDropDown1EditMode) {
@@ -363,14 +383,14 @@ void render_menu(Rectangle boundry){
         }
     }
     
-    DrawTextEx(font,"Quantum",(Vector2){boundry.x+textPadding, boundry.y + boundry.height * 0.37}, 0.75 * textSize,0,RED);
+    DrawText("Quantum",boundry.x+textPadding, boundry.y + boundry.height * 0.37, 0.75 * textSize,ColorFromHSV(135,1,1));
     GuiSpinner((Rectangle){ boundry.x+boundry.width * 0.1, boundry.height * 0.37 + textSize, boundry.width * 0.8, boundry.height * 0.11 }, NULL, &quantumValue, 1, 10, quantumSpinnerEditMode);
-    DrawTextEx(font,"Simulation Latency",(Vector2){boundry.x+textPadding, boundry.y + boundry.height * 0.48 + textSize}, 0.75 * textSize,0,RED);
+    DrawText("Simulation Latency",boundry.x+textPadding, boundry.y + boundry.height * 0.48 + textSize, 0.75 * textSize,ColorFromHSV(135,1,1));
     GuiSlider((Rectangle){ boundry.x + boundry.width * 0.1, boundry.y+boundry.height*0.48 + 2*textSize ,boundry.width * 0.8, boundry.height * 0.11 }, "", TextFormat("%2.2f", delay), &delay, 1, 60);
     GuiSetStyle(DROPDOWNBOX, TEXT_PADDING, 4);
     GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, TEXT_ALIGN_LEFT);
     // DrawTextEx(font,"Scheduling Algorithms",(Vector2){boundry.x+textPadding, boundry.y+3*textPadding},textSize,0,RED);
-    DrawTextEx(font,"Scheduling Algorithms",(Vector2){boundry.x+textPadding, boundry.height * 0.26 - textSize}, 0.75 * textSize,0,RED);
+    DrawText("Scheduling Algorithms",boundry.x+textPadding, boundry.height * 0.26 - textSize, 0.75 * textSize,ColorFromHSV(135,1,1));
     if(GuiDropdownBox((Rectangle){boundry.x+boundry.width * 0.1, boundry.height * 0.26, boundry.width * 0.8, boundry.height * 0.11}, algoOptions, &selectedAlgoIndex, algosDropDown1EditMode)) {
          algosDropDown1EditMode = !algosDropDown1EditMode;
          if(!algosDropDown1EditMode && !isStartButtonPressed) {
@@ -385,12 +405,12 @@ void preview_screen(void){
     Rectangle jobPoolRect = {
         .x = 0+padding,
         .y = 0+padding,
-        .width = (w-2*padding-2*gap)/3,
+        .width = (w-2*padding-3*gap)/3,
         .height = 2*(h-gap)/3,
     };
     render_job_pool(jobPoolRect);
     Rectangle statsRect = {
-        .x = gap+padding+(w-2*padding-2*gap)/3,
+        .x = gap+padding+(w-2*padding-3*gap)/3,
         .y = 0+padding,
         .width = (w-2*padding-2*gap)/3,
         .height = 2*(h-gap)/3,
@@ -406,7 +426,7 @@ void preview_screen(void){
     Rectangle menuRect = {
         .x = 2*gap+padding+2*(w-2*padding-2*gap)/3,
         .y = 0+padding,
-        .width = (w-2*padding-2*gap)/3,
+        .width = (w-2*padding-3*gap)/3,
         .height = 2*(h-gap)/3,
     };
     render_menu(menuRect);
@@ -425,6 +445,9 @@ int main(void){
     algorithms = load_all_algorithms("../build/algorithms");
     processes_number = getNbProcesses("./processes.txt");
     processes = getTableOfProcesses("./processes.txt");
+
+    GuiLoadStyleTerminal();
+    GuiSetStyle(LABEL, TEXT_ALIGNMENT, TEXT_ALIGN_LEFT);
 
     for(int i=0;i<numberOfAlgo;i++) {
         strcat(algoOptions,algorithms[i].name);
