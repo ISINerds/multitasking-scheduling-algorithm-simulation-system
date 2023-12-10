@@ -68,7 +68,9 @@ AlgoResult preemptive_priority(Queue* processesQ, int processNumber, int quantum
             char ** readyQueue = (char*) malloc(readyQueueElements.readyQueueSize * sizeof(char*));
             for(int i=0;i<readyQueueElements.readyQueueSize;i++){
                 readyQueue[i]= ((MultitaskProcess*)readyQueueElements.readyQueue[i])->process.processName;
+                free(readyQueueElements.readyQueue[i]);
             }
+            free(readyQueueElements.readyQueue);
             
             currentTime++;
             int isPriorityBigger=0;

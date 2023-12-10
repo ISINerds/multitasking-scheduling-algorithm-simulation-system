@@ -56,6 +56,7 @@ AlgoResult sjf (Queue* queue,int processes_number,int quantum) {
                 ready_queue[i] = process->processName;
                 free(e);
             }
+            free(priority_queue_elements.readyQueue);
             enqueue_gantt(algoResult.gantt,t,current_process->processName,finished,ready_queue,ready_priority_queue->size);
             t++;
             while(!is_empty_q(queue) && t >= queue->front->data.arrivalTime){

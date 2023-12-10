@@ -62,6 +62,7 @@ AlgoResult round_robin(Queue* queue,int processes_number,int quantum){
         quantum_value = quantum;
         finished = 0;
     }
+        free_queue(ready_queue);
         waiting_time += (wasted_time -t) ;
         add_metrics(&algoResult,(float)rotation_time/processes_number,(float)waiting_time/processes_number);
         return algoResult;

@@ -80,7 +80,9 @@ AlgoResult multilevel(Queue* queue,int processNumber,int quantum){
                     char** list = (char**)malloc(elements.readyQueueSize*sizeof(char*));
                     for(int j=0;j<elements.readyQueueSize;j++){
                         list[j]=((MultitaskProcess*)elements.readyQueue[j])->process.processName;
+                        free(elements.readyQueue[j]);
                     }
+                    free(elements.readyQueue);
                     enqueue_gantt(result.gantt,t-1,(p->process).processName,(p->process).runTime==0?1:0,list,elements.readyQueueSize);
                     if((p->process).runTime!=0){
                         p->readyFrom=t;
@@ -89,6 +91,7 @@ AlgoResult multilevel(Queue* queue,int processNumber,int quantum){
                     }else{
                         averageRotationTime+=t-(p->process).arrivalTime;
                     }
+                    free(p);
                     break;
                 }else{
                     if((p->process).runTime==0){
@@ -96,27 +99,35 @@ AlgoResult multilevel(Queue* queue,int processNumber,int quantum){
                         char** list = (char**)malloc(elements.readyQueueSize*sizeof(char*));
                         for(int j=0;j<elements.readyQueueSize;j++){
                             list[j]=((MultitaskProcess*)elements.readyQueue[j])->process.processName;
+                            free(elements.readyQueue[j]);
                         }
+                        free(elements.readyQueue);
                         enqueue_gantt(result.gantt,t-1,(p->process).processName,1,list,elements.readyQueueSize);
                         averageRotationTime+=t-(p->process).arrivalTime;
+                        free(p);
                         break;
                     }else if(i==quantum-1){
                         ReadyQueueElements elements = getPriorityQueueElements(pq);
                         char** list = (char**)malloc(elements.readyQueueSize*sizeof(char*));
                         for(int j=0;j<elements.readyQueueSize;j++){
                             list[j]=((MultitaskProcess*)elements.readyQueue[j])->process.processName;
+                            free(elements.readyQueue[j]);
                         }
+                        free(elements.readyQueue);
                         enqueue_gantt(result.gantt,t-1,(p->process).processName,0,list,elements.readyQueueSize);
 
                         p->readyFrom=t;
                         p->new=0;
                         push(pq,p);
+                        free(p);
                     }else{
                         ReadyQueueElements elements = getPriorityQueueElements(pq);
                         char** list = (char**)malloc(elements.readyQueueSize*sizeof(char*));
                         for(int j=0;j<elements.readyQueueSize;j++){
                             list[j]=((MultitaskProcess*)elements.readyQueue[j])->process.processName;
+                            free(elements.readyQueue[j]);
                         }
+                        free(elements.readyQueue);
                         enqueue_gantt(result.gantt,t-1,(p->process).processName,0,list,elements.readyQueueSize);
                     }
                 }
@@ -126,6 +137,7 @@ AlgoResult multilevel(Queue* queue,int processNumber,int quantum){
             t++;
         }
     }
+    free_priority_queue(pq);
     averageWaitingTime=(averageRotationTime-runTimeSum)/(float)processNumber;
     averageRotationTime/=(float)processNumber;
     add_metrics(&result,averageRotationTime,averageWaitingTime);
